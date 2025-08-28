@@ -23,8 +23,16 @@ func main() {
 	cfg := config.Get()
 
 	// 初始化数据库
-	if err := db.Init(); err != nil {
-		panic(fmt.Sprintf("mysql init failed with %+v", err))
+	testMode := os.Getenv("TEST_MODE") == "true"
+	if testMode {
+		fmt.Println("运行在测试模式，使用SQLite数据库")
+		if err := db.InitSQLite(); err != nil {
+			panic(fmt.Sprintf("SQLite init failed with %+v", err))
+		}
+	} else {
+		if err := db.Init(); err != nil {
+			panic(fmt.Sprintf("mysql init failed with %+v", err))
+		}
 	}
 
 	// 初始化数据库表
