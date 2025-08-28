@@ -1,0 +1,30 @@
+运行在测试模式，使用SQLite数据库
+初始化SQLite数据库: test.db
+SQLite初始化成功
+2025/08/28 10:12:27 Default admin user already exists
+2025/08/28 10:12:27 Database tables initialized successfully
+2025/08/28 10:12:27 Server starting on port 8081...
+2025/08/28 10:12:33 [2025-08-28 10:12:33] GET / [::1]:58436
+2025/08/28 10:12:33 [2025-08-28 10:12:33] GET / 200 156.554µs
+2025/08/28 10:12:33 [2025-08-28 10:12:33] POST /api/auth/login [::1]:58444
+
+2025/08/28 10:12:33 [31;1m/workspace/db/dao/user_dao.go:67 [35;1mrecord not found
+[0m[33m[0.142ms] [34;1m[rows:0][0m SELECT * FROM `users` WHERE username = "wrong" ORDER BY `users`.`id` LIMIT 1
+2025/08/28 10:12:33 [2025-08-28 10:12:33] POST /api/auth/login 200 328.642µs
+2025/08/28 10:12:33 [2025-08-28 10:12:33] POST /api/auth/login [::1]:58452
+2025/08/28 10:12:33 [2025-08-28 10:12:33] POST /api/auth/login 200 317.335µs
+2025/08/28 10:12:33 [2025-08-28 10:12:33] GET /api/users [::1]:58464
+2025/08/28 10:12:33 [2025-08-28 10:12:33] GET /api/users 401 32.742µs
+2025/08/28 10:12:33 [2025-08-28 10:12:33] GET /api/users [::1]:58476
+2025/08/28 10:12:33 [2025-08-28 10:12:33] GET /api/users 200 176.63µs
+2025/08/28 10:12:33 [2025-08-28 10:12:33] POST /api/users [::1]:58490
+2025/08/28 10:12:33 [2025-08-28 10:12:33] POST /api/users 200 2.81198ms
+2025/08/28 10:12:33 [2025-08-28 10:12:33] DELETE /api/users/user-20250828101233 [::1]:58502
+2025/08/28 10:12:33 [2025-08-28 10:12:33] DELETE /api/users/user-20250828101233 200 3.484742ms
+2025/08/28 10:12:33 [2025-08-28 10:12:33] POST /api/auth/login [::1]:58508
+
+2025/08/28 10:12:33 [31;1m/workspace/db/dao/user_dao.go:67 [35;1mrecord not found
+[0m[33m[0.071ms] [34;1m[rows:0][0m SELECT * FROM `users` WHERE username = "' OR 1=1 --" ORDER BY `users`.`id` LIMIT 1
+2025/08/28 10:12:33 [2025-08-28 10:12:33] POST /api/auth/login 200 153.97µs
+2025/08/28 10:12:33 [2025-08-28 10:12:33] GET / [::1]:58522
+2025/08/28 10:12:33 [2025-08-28 10:12:33] GET / 200 116.574µs

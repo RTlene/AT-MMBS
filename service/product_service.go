@@ -74,9 +74,9 @@ func ProductHandler(w http.ResponseWriter, r *http.Request) {
 			if product.Price == 0 {
 				product.Price = 0.01
 			}
-			// 确保Tp字段是数组
-			if product.Tp == nil {
-				product.Tp = model.StringArray{}
+			// 确保Tp字段有默认值
+			if product.Tp == "" {
+				product.Tp = "[]"
 			}
 			// 设置时间字段
 			now := time.Now()

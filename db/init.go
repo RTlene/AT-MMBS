@@ -125,7 +125,7 @@ func autoMigrateSQLite(db *gorm.DB) error {
 		admin := &model.UserModel{
 			ID:       "admin-001",
 			Username: "admin",
-			Password: "5f4dcc3b5aa765d61d8327deb882cf99", // admin123的MD5
+			Password: "0192023a7bbd73250516f069df18b500", // admin123的MD5
 			Role:     "admin",
 		}
 		db.Create(admin)

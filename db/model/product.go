@@ -42,7 +42,7 @@ type ProductModel struct {
 	Category     string      `gorm:"column:category;type:varchar(50);not null" json:"category"`
 	Price        float64     `gorm:"column:price;type:decimal(10,2);not null" json:"price"`
 	Kucun        int         `gorm:"column:kucun;type:int;not null;default:0" json:"kucun"`
-	Tp           StringArray `gorm:"column:tp;type:json" json:"tp"`
+	Tp           string `gorm:"column:tp;type:text" json:"tp"`
 	Sp           string      `gorm:"column:sp;type:varchar(500)" json:"sp"`
 	OverlayStyle string      `gorm:"column:overlay_style;type:text" json:"overlay_style"`
 	Content      string      `gorm:"column:content;type:text" json:"content"`
