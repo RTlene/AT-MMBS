@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESTful API测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        
+        /* 表格样式 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .table th,
+        .table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .log-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 RESTful API功能测试页面</h1>
+        <p class="success">这个页面用于测试RESTful API是否正常工作</p>
+        
+        <div class="test-section">
+            <h3>测试操作：</h3>
+            <button class="btn" onclick="testGetUsers()">测试获取用户列表</button>
+            <button class="btn btn-success" onclick="testAddUser()">测试添加用户</button>
+            <button class="btn" onclick="testGetSingleUser()">测试获取单个用户</button>
+            <button class="btn" onclick="testUpdateUser()">测试更新用户</button>
+            <button class="btn btn-danger" onclick="testDeleteUser()">测试删除用户</button>
+            <button class="btn btn-danger" onclick="clearLog()">清空日志</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>用户列表：</h3>
+            <div id="usersTableContainer">
+                <p>点击"测试获取用户列表"按钮来加载数据</p>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>调试日志：</h3>
+            <div id="debugLog" class="log-section">
+                日志将在这里显示...
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>测试说明：</h3>
+            <ol>
+                <li>点击"测试获取用户列表"按钮测试GET /api/users</li>
+                <li>点击"测试添加用户"按钮测试POST /api/users</li>
+                <li>点击"测试获取单个用户"按钮测试GET /api/users/{id}</li>
+                <li>点击"测试更新用户"按钮测试PUT /api/users/{id}</li>
+                <li>点击"测试删除用户"按钮测试DELETE /api/users/{id}</li>
+                <li>观察用户列表是否正确显示和更新</li>
+                <li>查看调试日志了解API响应详情</li>
+            </ol>
+        </div>
+        
+        <p><a href="/admin">访问管理后台</a></p>
+        <p><a href="/">返回首页</a></p>
+    </div>
+    
+    <script>
+        // 调试日志函数
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.style.color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#333';
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('debugLog').innerHTML = '日志已清空...';
+        }
+        
+        // 测试获取用户列表
+        async function testGetUsers() {
+            log('开始测试获取用户列表...', 'info');
+            
+            try {
+                const response = await fetch('/api/users');
+                log(`API响应状态: ${response.status}`, 'info');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                log(`API响应数据: ${JSON.stringify(result, null, 2)}`, 'success');
+                
+                if (result.code === 0) {
+                    let users = [];
+                    if (result.data && typeof result.data === 'object') {
+                        if (Array.isArray(result.data)) {
+                            users = result.data;
+                        } else if (result.data.users && Array.isArray(result.data.users)) {
+                            users = result.data.users;
+                        }
+                    }
+                    log(`成功获取 ${users.length} 个用户`, 'success');
+                    displayUsers(users);
+                } else {
+                    throw new Error(result.errorMsg || 'API返回错误');
+                }
+                
+            } catch (error) {
+                log(`获取用户列表失败: ${error.message}`, 'error');
+                console.error('获取用户列表失败:', error);
+            }
+        }
+        
+        // 测试添加用户
+        async function testAddUser() {
+            log('开始测试添加用户...', 'info');
+            
+            const testUser = {
+                username: `test_user_${Date.now()}`,
+                email: `test${Date.now()}@example.com`,
+                password: 'test123456',
+                role: 'user'
+            };
+            
+            try {
+                const response = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testUser)
+                });
+                
+                log(`添加用户API响应状态: ${response.status}`, 'info');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                log(`添加用户API响应: ${JSON.stringify(result, null, 2)}`, 'success');
+                
+                if (result.code === 0) {
+                    log('用户添加成功，现在重新加载用户列表...', 'success');
+                    setTimeout(testGetUsers, 1000);
+                } else {
+                    log(`用户添加失败: ${result.errorMsg}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`添加用户失败: ${error.message}`, 'error');
+                console.error('添加用户失败:', error);
+            }
+        }
+        
+        // 测试获取单个用户
+        async function testGetSingleUser() {
+            log('开始测试获取单个用户...', 'info');
+            
+            // 先获取用户列表，然后测试第一个用户
+            try {
+                const response = await fetch('/api/users');
+                if (!response.ok) {
+                    throw new Error('获取用户列表失败');
+                }
+                
+                const result = await response.json();
+                if (result.code === 0) {
+                    let users = [];
+                    if (result.data && typeof result.data === 'object') {
+                        if (Array.isArray(result.data)) {
+                            users = result.data;
+                        } else if (result.data.users && Array.isArray(result.data.users)) {
+                            users = result.data.users;
+                        }
+                    }
+                    
+                    if (users.length > 0) {
+                        const firstUser = users[0];
+                        log(`测试获取用户ID: ${firstUser.id}`, 'info');
+                        
+                        const singleResponse = await fetch(`/api/users/${firstUser.id}`);
+                        log(`单个用户API响应状态: ${singleResponse.status}`, 'info');
+                        
+                        if (!singleResponse.ok) {
+                            throw new Error(`HTTP error! status: ${singleResponse.status}`);
+                        }
+                        
+                        const singleResult = await singleResponse.json();
+                        log(`单个用户API响应: ${JSON.stringify(singleResult, null, 2)}`, 'success');
+                        
+                        if (singleResult.code === 0) {
+                            log('成功获取单个用户信息', 'success');
+                        } else {
+                            log(`获取单个用户失败: ${singleResult.errorMsg}`, 'error');
+                        }
+                    } else {
+                        log('没有用户数据可测试', 'error');
+                    }
+                } else {
+                    throw new Error(result.errorMsg || '获取用户列表失败');
+                }
+                
+            } catch (error) {
+                log(`获取单个用户失败: ${error.message}`, 'error');
+                console.error('获取单个用户失败:', error);
+            }
+        }
+        
+        // 测试更新用户
+        async function testUpdateUser() {
+            log('开始测试更新用户...', 'info');
+            
+            // 先获取用户列表，然后测试更新第一个用户
+            try {
+                const response = await fetch('/api/users');
+                if (!response.ok) {
+                    throw new Error('获取用户列表失败');
+                }
+                
+                const result = await response.json();
+                if (result.code === 0) {
+                    let users = [];
+                    if (result.data && typeof result.data === 'object') {
+                        if (Array.isArray(result.data)) {
+                            users = result.data;
+                        } else if (result.data.users && Array.isArray(result.data.users)) {
+                            users = result.data.users;
+                        }
+                    }
+                    
+                    if (users.length > 0) {
+                        const firstUser = users[0];
+                        log(`测试更新用户ID: ${firstUser.id}`, 'info');
+                        
+                        const updateData = {
+                            id: firstUser.id,
+                            username: firstUser.username + '_updated',
+                            email: firstUser.email,
+                            role: firstUser.role
+                        };
+                        
+                        const updateResponse = await fetch(`/api/users/${firstUser.id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(updateData)
+                        });
+                        
+                        log(`更新用户API响应状态: ${updateResponse.status}`, 'info');
+                        
+                        if (!updateResponse.ok) {
+                            throw new Error(`HTTP error! status: ${updateResponse.status}`);
+                        }
+                        
+                        const updateResult = await updateResponse.json();
+                        log(`更新用户API响应: ${JSON.stringify(updateResult, null, 2)}`, 'success');
+                        
+                        if (updateResult.code === 0) {
+                            log('成功更新用户信息', 'success');
+                            setTimeout(testGetUsers, 1000); // 重新加载用户列表
+                        } else {
+                            log(`更新用户失败: ${updateResult.errorMsg}`, 'error');
+                        }
+                    } else {
+                        log('没有用户数据可测试', 'error');
+                    }
+                } else {
+                    throw new Error(result.errorMsg || '获取用户列表失败');
+                }
+                
+            } catch (error) {
+                log(`更新用户失败: ${error.message}`, 'error');
+                console.error('更新用户失败:', error);
+            }
+        }
+        
+        // 测试删除用户
+        async function testDeleteUser() {
+            log('开始测试删除用户...', 'info');
+            
+            // 先获取用户列表，然后测试删除第一个用户
+            try {
+                const response = await fetch('/api/users');
+                if (!response.ok) {
+                    throw new Error('获取用户列表失败');
+                }
+                
+                const result = await response.json();
+                if (result.code === 0) {
+                    let users = [];
+                    if (result.data && typeof result.data === 'object') {
+                        if (Array.isArray(result.data)) {
+                            users = result.data;
+                        } else if (result.data.users && Array.isArray(result.data.users)) {
+                            users = result.data.users;
+                        }
+                    }
+                    
+                    if (users.length > 0) {
+                        const firstUser = users[0];
+                        log(`测试删除用户ID: ${firstUser.id}`, 'info');
+                        
+                        if (confirm(`确定要删除用户 "${firstUser.username}" 吗？`)) {
+                            const deleteResponse = await fetch(`/api/users/${firstUser.id}`, {
+                                method: 'DELETE'
+                            });
+                            
+                            log(`删除用户API响应状态: ${deleteResponse.status}`, 'info');
+                            
+                            if (!deleteResponse.ok) {
+                                throw new Error(`HTTP error! status: ${deleteResponse.status}`);
+                            }
+                            
+                            const deleteResult = await deleteResponse.json();
+                            log(`删除用户API响应: ${JSON.stringify(deleteResult, null, 2)}`, 'success');
+                            
+                            if (deleteResult.code === 0) {
+                                log('成功删除用户', 'success');
+                                setTimeout(testGetUsers, 1000); // 重新加载用户列表
+                            } else {
+                                log(`删除用户失败: ${deleteResult.errorMsg}`, 'error');
+                            }
+                        } else {
+                            log('用户取消删除操作', 'info');
+                        }
+                    } else {
+                        log('没有用户数据可测试', 'error');
+                    }
+                } else {
+                    throw new Error(result.errorMsg || '获取用户列表失败');
+                }
+                
+            } catch (error) {
+                log(`删除用户失败: ${error.message}`, 'error');
+                console.error('删除用户失败:', error);
+            }
+        }
+        
+        // 显示用户列表
+        function displayUsers(users) {
+            const container = document.getElementById('usersTableContainer');
+            
+            if (!users || users.length === 0) {
+                container.innerHTML = '<p>暂无用户数据</p>';
+                return;
+            }
+            
+            let html = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>邮箱</th>
+                            <th>角色</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>最后登录</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            users.forEach(user => {
+                const statusText = user.status === 1 ? '正常' : '禁用';
+                const statusClass = user.status === 1 ? 'status-active' : 'status-inactive';
+                const createdAt = user.createTime ? new Date(user.createTime).toLocaleDateString() : '-';
+                const lastLoginAt = user.lastLoginTime ? new Date(user.lastLoginTime).toLocaleString() : '-';
+
+                html += `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.username || user.userName || '-'}</td>
+                        <td>${user.email || '-'}</td>
+                        <td>${user.role || '普通用户'}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${createdAt}</td>
+                        <td>${lastLoginAt}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+            
+            log(`成功显示 ${users.length} 个用户`, 'success');
+        }
+        
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            log('页面加载完成，可以开始测试', 'info');
+        });
+    </script>
+</body>
+</html>

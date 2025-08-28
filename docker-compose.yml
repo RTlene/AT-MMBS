@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: at-mmbs-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_DATABASE: at_mmbs
+      MYSQL_USER: at_mmbs_user
+      MYSQL_PASSWORD: at_mmbs_pass
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - at-mmbs-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: at-mmbs-app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      MYSQL_USERNAME: at_mmbs_user
+      MYSQL_PASSWORD: at_mmbs_pass
+      MYSQL_ADDRESS: mysql:3306
+      MYSQL_DATABASE: at_mmbs
+      TZ: Asia/Shanghai
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - at-mmbs-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  at-mmbs-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

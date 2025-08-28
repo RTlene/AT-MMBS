@@ -1,0 +1,43 @@
+# Git相关
+.git
+.gitignore
+
+# Docker相关
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# 文档
+README.md
+开发要求.md
+项目总结.md
+LICENSE
+
+# 批处理文件
+*.bat
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.temp
+
+# IDE配置
+.vscode
+.idea
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 测试文件
+*_test.go
+test/
+
+# 构建产物
+main
+*.exe
+*.dll
+*.so
+*.dylib
