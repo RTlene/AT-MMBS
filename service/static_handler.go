@@ -85,3 +85,61 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	// 直接调用StaticHandler处理根路径
 	StaticHandler(w, r)
 }
+
+// FileServerHandler 处理上传文件的访问
+func FileServerHandler(w http.ResponseWriter, r *http.Request) {
+	// 设置CORS头
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	
+	// 移除 /uploads/ 前缀
+	filePath := strings.TrimPrefix(r.URL.Path, "/uploads/")
+	if filePath == "" {
+		http.NotFound(w, r)
+		return
+	}
+	
+	// 构建完整文件路径
+	fullPath := filepath.Join("uploads", filePath)
+	
+	// 安全检查：确保路径在uploads目录内
+	if !strings.HasPrefix(fullPath, "uploads") {
+		http.NotFound(w, r)
+		return
+	}
+	
+	// 检查文件是否存在
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		http.NotFound(w, r)
+		return
+	}
+	
+	// 根据文件扩展名设置Content-Type
+	ext := strings.ToLower(filepath.Ext(filePath))
+	switch ext {
+	case ".jpg", ".jpeg":
+		w.Header().Set("Content-Type", "image/jpeg")
+	case ".png":
+		w.Header().Set("Content-Type", "image/png")
+	case ".gif":
+		w.Header().Set("Content-Type", "image/gif")
+	case ".bmp":
+		w.Header().Set("Content-Type", "image/bmp")
+	case ".webp":
+		w.Header().Set("Content-Type", "image/webp")
+	default:
+		w.Header().Set("Content-Type", "application/octet-stream")
+	}
+	
+	// 设置缓存头
+	w.Header().Set("Cache-Control", "public, max-age=31536000")
+	
+	// 提供文件
+	http.ServeFile(w, r, fullPath)
+}

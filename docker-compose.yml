@@ -1,65 +1,81 @@
 version: '3.8'
 
 services:
+  # MySQL数据库服务
   mysql:
     image: mysql:8.0
     container_name: at-mmbs-mysql
-    restart: unless-stopped
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root123456
-      MYSQL_DATABASE: at_mmbs
-      MYSQL_USER: at_mmbs_user
-      MYSQL_PASSWORD: at_mmbs_pass
-      MYSQL_CHARACTER_SET_SERVER: utf8mb4
-      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123456}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-golang_demo}
+      MYSQL_USER: ${MYSQL_USER:-mmbs_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mmbs_pass123}
     ports:
-      - "3307:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
     networks:
-      - at-mmbs-network
+      - mmbs-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root123456}"]
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 40s
 
+  # 应用服务
   app:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: at-mmbs-app
-    restart: unless-stopped
-    ports:
-      - "8080:80"
+    restart: always
     environment:
-      MYSQL_USERNAME: at_mmbs_user
-      MYSQL_PASSWORD: at_mmbs_pass
+      MYSQL_USERNAME: ${MYSQL_USER:-mmbs_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mmbs_pass123}
       MYSQL_ADDRESS: mysql:3306
-      MYSQL_DATABASE: at_mmbs
-      TZ: Asia/Shanghai
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-golang_demo}
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-this}
+      PORT: 80
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
     depends_on:
       mysql:
         condition: service_healthy
     networks:
-      - at-mmbs-network
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - mmbs-network
 
+  # Nginx反向代理（可选）
+  nginx:
+    image: nginx:alpine
+    container_name: at-mmbs-nginx
+    restart: always
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./uploads:/usr/share/nginx/html/uploads:ro
+    depends_on:
+      - app
+    networks:
+      - mmbs-network
+
+# 网络配置
+networks:
+  mmbs-network:
+    driver: bridge
+
+# 数据卷配置
 volumes:
   mysql_data:
     driver: local
-
-networks:
-  at-mmbs-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16

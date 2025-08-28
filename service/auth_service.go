@@ -90,6 +90,9 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	// 生成token
 	token := generateToken(user.ID, user.Username)
+	
+	// 保存token到存储
+	SaveToken(token, user.ID)
 
 	// 返回登录成功信息
 	WriteJSON(w, &JsonResult{
@@ -197,4 +200,36 @@ func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 		// token验证通过，继续处理请求
 		next.ServeHTTP(w, r)
 	}
+}
+
+// tokenStore 简单的内存token存储（实际项目应使用Redis等）
+var tokenStore = make(map[string]string) // token -> userID
+
+// ValidateToken 验证token并返回用户ID
+func ValidateToken(token string) (string, error) {
+	// 简单的token验证，实际项目中应该使用JWT
+	userID, exists := tokenStore[token]
+	if !exists {
+		return "", fmt.Errorf("token无效或已过期")
+	}
+	return userID, nil
+}
+
+// IsUserAdmin 检查用户是否为管理员
+func IsUserAdmin(userID string) (bool, error) {
+	user, err := dao.Imp.GetUserByID(userID)
+	if err != nil {
+		return false, err
+	}
+	return user.Role == "admin", nil
+}
+
+// SaveToken 保存token（用于登录时存储）
+func SaveToken(token, userID string) {
+	tokenStore[token] = userID
+}
+
+// RemoveToken 移除token（用于登出）
+func RemoveToken(token string) {
+	delete(tokenStore, token)
 }

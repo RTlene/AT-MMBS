@@ -73,3 +73,9 @@ func (imp *PaymentInterfaceImp) UpdatePaymentStatus(id string, status int) error
 	cli := db.Get()
 	return cli.Model(&model.PaymentModel{}).Where("id = ?", id).Update("status", status).Error
 }
+
+// DeletePayment 删除支付记录
+func (imp *PaymentInterfaceImp) DeletePayment(id string) error {
+	cli := db.Get()
+	return cli.Where("id = ?", id).Delete(&model.PaymentModel{}).Error
+}

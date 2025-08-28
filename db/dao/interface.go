@@ -88,6 +88,7 @@ type OrderInterface interface {
 type PaymentInterface interface {
 	CreatePayment(payment *model.PaymentModel) error
 	UpdatePayment(payment *model.PaymentModel) error
+	DeletePayment(id string) error
 	GetPaymentByID(id string) (*model.PaymentModel, error)
 	GetPaymentByOrderID(orderID string) (*model.PaymentModel, error)
 	GetPayments(page, pageSize int, memberID string) ([]*model.PaymentModel, int64, error)

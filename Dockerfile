@@ -43,13 +43,16 @@ WORKDIR /app
 
 # 从构建阶段复制二进制文件
 COPY --from=builder /app/main .
-COPY --from=builder /app/index.html .
-COPY --from=builder /app/admin.html .
-COPY --from=builder /app/login.html .
-COPY --from=builder /app/test.html .
+
+# 复制静态文件
+COPY --from=builder /app/*.html .
+COPY --from=builder /app/js ./js/
+
+# 创建必要的目录
+RUN mkdir -p uploads logs
 
 # 更改文件所有者
-RUN chown -R appuser:appgroup /app
+RUN chown -R appuser:appgroup /app /app/uploads /app/logs
 
 # 切换到非root用户
 USER appuser

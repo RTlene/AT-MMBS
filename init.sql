@@ -1,147 +1,161 @@
--- 创建数据库
-CREATE DATABASE IF NOT EXISTS at_mmbs CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- AT-MMBS 数据库初始化脚本
+-- 该脚本会在MySQL容器首次启动时自动执行
 
--- 使用数据库
-USE at_mmbs;
+-- 创建数据库（如果不存在）
+CREATE DATABASE IF NOT EXISTS golang_demo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE golang_demo;
 
--- 创建用户表
-CREATE TABLE IF NOT EXISTS users (
-    id VARCHAR(36) PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- 计数器表（测试用）
+CREATE TABLE IF NOT EXISTS `counters` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `count` int(11) NOT NULL DEFAULT 1,
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 创建商品表
-CREATE TABLE IF NOT EXISTS products (
-    _id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-    kucun INT NOT NULL DEFAULT 0,
-    tp JSON,
-    sp VARCHAR(500),
-    overlay_style TEXT,
-    content TEXT,
-    status INT DEFAULT 1 COMMENT '1:上架 0:下架',
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- 用户表
+CREATE TABLE IF NOT EXISTS `user` (
+    `id` varchar(50) NOT NULL,
+    `username` varchar(50) NOT NULL UNIQUE,
+    `password` varchar(255) NOT NULL,
+    `role` varchar(20) DEFAULT 'user',
+    `status` tinyint(1) DEFAULT 1,
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `idx_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 创建分类表
-CREATE TABLE IF NOT EXISTS categories (
-    id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    description TEXT,
-    sub_category JSON,
-    status INT DEFAULT 1 COMMENT '1:启用 0:禁用',
-    is_parent BOOLEAN DEFAULT FALSE,
-    parent_id VARCHAR(36),
-    sort INT DEFAULT 0
-);
+-- 分类表
+CREATE TABLE IF NOT EXISTS `category` (
+    `id` varchar(50) NOT NULL,
+    `name` varchar(100) NOT NULL,
+    `parent_id` varchar(50) DEFAULT '0',
+    `sort_order` int(11) DEFAULT 0,
+    `status` tinyint(1) DEFAULT 1,
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `idx_parent` (`parent_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 创建会员表
-CREATE TABLE IF NOT EXISTS members (
-    _id VARCHAR(36) PRIMARY KEY,
-    nick_name VARCHAR(50),
-    openid VARCHAR(100) UNIQUE,
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    birthday DATE,
-    last_login_time TIMESTAMP,
-    gender VARCHAR(10),
-    phone VARCHAR(20),
-    phone_verified BOOLEAN DEFAULT FALSE,
-    phone_verify_time TIMESTAMP,
-    region JSON,
-    addresses JSON,
-    referrer_id VARCHAR(36),
-    direct_fans JSON,
-    orders JSON,
-    level_id VARCHAR(36),
-    distributor_id VARCHAR(36),
-    points INT DEFAULT 0,
-    commission DECIMAL(10,2) DEFAULT 0,
-    commission_logs JSON,
-    points_logs JSON,
-    auto_upgrade BOOLEAN DEFAULT TRUE
-);
+-- 商品表
+CREATE TABLE IF NOT EXISTS `product` (
+    `id` varchar(50) NOT NULL,
+    `name` varchar(200) NOT NULL,
+    `category` varchar(50),
+    `price` decimal(10,2) NOT NULL,
+    `kucun` int(11) DEFAULT 0,
+    `content` longtext,
+    `tp` json,
+    `status` tinyint(1) DEFAULT 1,
+    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `idx_category` (`category`),
+    INDEX `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 创建会员等级表
-CREATE TABLE IF NOT EXISTS member_levels (
-    id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    description TEXT,
-    discount DECIMAL(3,2) DEFAULT 1.00 COMMENT '购物折扣',
-    points_rate DECIMAL(3,2) DEFAULT 1.00 COMMENT '积分倍率',
-    upgrade_conditions JSON COMMENT '升级条件列表',
-    auto_upgrade BOOLEAN DEFAULT FALSE,
-    sort INT DEFAULT 0
-);
+-- 会员等级表
+CREATE TABLE IF NOT EXISTS `member_level` (
+    `id` varchar(50) NOT NULL,
+    `name` varchar(50) NOT NULL,
+    `discount` decimal(3,2) DEFAULT 1.00,
+    `min_points` int(11) DEFAULT 0,
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 创建分销等级表
-CREATE TABLE IF NOT EXISTS distributor_levels (
-    id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    description TEXT,
-    pickup_discount DECIMAL(3,2) DEFAULT 1.00 COMMENT '提货折扣',
-    direct_rate DECIMAL(5,4) DEFAULT 0.0000 COMMENT '直接佣金比例',
-    indirect_rate DECIMAL(5,4) DEFAULT 0.0000 COMMENT '间接佣金比例',
-    upgrade_conditions JSON COMMENT '升级条件列表',
-    auto_upgrade BOOLEAN DEFAULT FALSE,
-    distributor_mode VARCHAR(20) DEFAULT 'normal' COMMENT '分销模式',
-    sort INT DEFAULT 0
-);
+-- 分销商等级表
+CREATE TABLE IF NOT EXISTS `distributor_level` (
+    `id` varchar(50) NOT NULL,
+    `name` varchar(50) NOT NULL,
+    `commission_rate` decimal(5,2) DEFAULT 0.00,
+    `min_sales` decimal(10,2) DEFAULT 0.00,
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 创建订单表
-CREATE TABLE IF NOT EXISTS orders (
-    id VARCHAR(36) PRIMARY KEY,
-    order_no VARCHAR(50) NOT NULL UNIQUE,
-    member_id VARCHAR(36) NOT NULL,
-    products JSON NOT NULL COMMENT '订购商品列表',
-    delivery_type VARCHAR(20) NOT NULL COMMENT '配送方式',
-    address TEXT COMMENT '配送/门店地址',
-    total_amount DECIMAL(10,2) NOT NULL COMMENT '订单金额',
-    paid_amount DECIMAL(10,2) NOT NULL COMMENT '实付金额',
-    payment_status INT DEFAULT 0 COMMENT '0:未支付 1:已支付 2:已退款',
-    order_status INT DEFAULT 0 COMMENT '0:待确认 1:已确认 2:已发货 3:已完成 4:已取消',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- 会员表
+CREATE TABLE IF NOT EXISTS `member` (
+    `id` varchar(50) NOT NULL,
+    `openid` varchar(100) UNIQUE,
+    `username` varchar(50) UNIQUE,
+    `password` varchar(255),
+    `real_name` varchar(50),
+    `phone` varchar(20),
+    `email` varchar(100),
+    `member_level_id` varchar(50),
+    `distributor_level_id` varchar(50),
+    `referrer_id` varchar(50),
+    `points` int(11) DEFAULT 0,
+    `balance` decimal(10,2) DEFAULT 0.00,
+    `status` tinyint(1) DEFAULT 1,
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `idx_openid` (`openid`),
+    INDEX `idx_member_level` (`member_level_id`),
+    INDEX `idx_distributor_level` (`distributor_level_id`),
+    INDEX `idx_referrer` (`referrer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 创建支付表
-CREATE TABLE IF NOT EXISTS payments (
-    id VARCHAR(36) PRIMARY KEY,
-    order_id VARCHAR(36) NOT NULL UNIQUE,
-    order_no VARCHAR(50) NOT NULL,
-    member_id VARCHAR(36) NOT NULL,
-    payment_method VARCHAR(20) NOT NULL COMMENT '支付方式',
-    amount DECIMAL(10,2) NOT NULL,
-    status INT DEFAULT 0 COMMENT '0:待支付 1:支付中 2:支付成功 3:支付失败 4:已退款',
-    transaction_id VARCHAR(100) COMMENT '第三方支付交易号',
-    pay_time TIMESTAMP,
-    refund_time TIMESTAMP,
-    refund_amount DECIMAL(10,2) DEFAULT 0,
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- 订单表
+CREATE TABLE IF NOT EXISTS `order` (
+    `id` varchar(50) NOT NULL,
+    `order_no` varchar(32) NOT NULL UNIQUE,
+    `member_id` varchar(50) NOT NULL,
+    `total_amount` decimal(10,2) NOT NULL,
+    `discount_amount` decimal(10,2) DEFAULT 0.00,
+    `pay_amount` decimal(10,2) NOT NULL,
+    `status` int(11) DEFAULT 0,
+    `remark` text,
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `idx_member` (`member_id`),
+    INDEX `idx_order_no` (`order_no`),
+    INDEX `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 插入一些测试数据
-INSERT INTO users (id, username, password) VALUES 
-('1', 'admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVEFDi');
+-- 支付记录表
+CREATE TABLE IF NOT EXISTS `payment` (
+    `id` varchar(50) NOT NULL,
+    `order_id` varchar(50) NOT NULL,
+    `payment_no` varchar(64) NOT NULL,
+    `payment_method` varchar(20),
+    `amount` decimal(10,2) NOT NULL,
+    `status` int(11) DEFAULT 0,
+    `paid_at` timestamp NULL,
+    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `idx_order` (`order_id`),
+    INDEX `idx_payment_no` (`payment_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO categories (id, name, is_parent, sort) VALUES 
-('1', '电子产品', TRUE, 1),
-('2', '服装鞋帽', TRUE, 2),
-('3', '食品饮料', TRUE, 3);
+-- 插入默认会员等级
+INSERT IGNORE INTO `member_level` (`id`, `name`, `discount`, `min_points`) VALUES 
+('ml_001', '普通会员', 1.00, 0),
+('ml_002', '银卡会员', 0.95, 1000),
+('ml_003', '金卡会员', 0.90, 5000),
+('ml_004', '钻石会员', 0.85, 10000);
 
-INSERT INTO member_levels (id, name, description, discount, points_rate) VALUES 
-('1', '普通会员', '新注册会员', 1.00, 1.00),
-('2', '银卡会员', '消费满1000元', 0.95, 1.20),
-('3', '金卡会员', '消费满5000元', 0.90, 1.50);
+-- 插入默认分销商等级
+INSERT IGNORE INTO `distributor_level` (`id`, `name`, `commission_rate`, `min_sales`) VALUES 
+('dl_001', '初级分销商', 5.00, 0.00),
+('dl_002', '中级分销商', 8.00, 10000.00),
+('dl_003', '高级分销商', 12.00, 50000.00);
 
-INSERT INTO distributor_levels (id, name, description, direct_rate, indirect_rate) VALUES 
-('1', '普通分销商', '新加入分销商', 0.05, 0.02),
-('2', '高级分销商', '销售额满10000元', 0.08, 0.03),
-('3', 'VIP分销商', '销售额满50000元', 0.10, 0.04);
+-- 插入测试分类
+INSERT IGNORE INTO `category` (`id`, `name`, `parent_id`, `sort_order`) VALUES 
+('cat_001', '电子产品', '0', 1),
+('cat_002', '服装', '0', 2),
+('cat_003', '食品', '0', 3),
+('cat_004', '手机', 'cat_001', 1),
+('cat_005', '电脑', 'cat_001', 2);
+
+-- 注意：默认管理员用户将由应用程序在启动时自动创建
