@@ -1,60 +1,86 @@
-# 项目清理指南
+# Project Cleanup Guide
 
-我已经为您创建了两个文件来帮助清理项目：
+We have created several cleanup scripts to help you clean up unnecessary files from your project. All scripts are now in English to avoid encoding issues.
 
-## 1. NECESSARY_FILES.md
-详细列出了项目运行所需的所有必要文件，不在列表中的文件都可以安全删除。
+## Available Scripts:
 
-## 2. cleanup-project.ps1
-PowerShell自动清理脚本，可以帮助您快速清理项目。
+### 1. quick-clean.bat (Recommended for beginners)
+The simplest and most direct cleanup method. Just double-click to run.
 
-### 使用方法：
+```bash
+quick-clean.bat
+```
 
-#### 步骤 1：拉取最新代码
+### 2. cleanup.bat + cleanup.ps1
+Interactive cleanup with multiple options.
+
+```bash
+cleanup.bat
+```
+
+### 3. simple-cleanup.ps1
+A simple PowerShell script that directly deletes unnecessary files.
+
+```powershell
+# Run directly
+powershell -ExecutionPolicy Bypass -File .\simple-cleanup.ps1
+```
+
+## Steps to Use:
+
+### Step 1: Pull Latest Code
 ```powershell
 git pull origin cursor/explain-background-mode-concept-201c
 ```
 
-#### 步骤 2：恢复所有文件（如果之前有删除状态的文件）
+### Step 2: Restore Files (if needed)
+If you see deleted files in git status:
 ```powershell
 git checkout HEAD -- .
 ```
 
-#### 步骤 3：预览将要删除的文件（推荐先执行）
+### Step 3: Test PowerShell Works
 ```powershell
-# 使用兼容版本（推荐）
-.\cleanup-project-safe.ps1 -DryRun
-
-# 或者原版本（如果PowerShell支持Unicode）
-.\cleanup-project.ps1 -DryRun
+powershell -ExecutionPolicy Bypass -File .\test-cleanup.ps1
 ```
 
-#### 步骤 4：执行清理
-```powershell
-# 使用兼容版本（推荐）- 基本清理
-.\cleanup-project-safe.ps1
+### Step 4: Run Cleanup
 
-# 保留测试文件
-.\cleanup-project-safe.ps1 -KeepTests
-
-# 保留日志文件
-.\cleanup-project-safe.ps1 -KeepLogs
-
-# 保留测试和日志文件
-.\cleanup-project-safe.ps1 -KeepTests -KeepLogs
+#### Option A: Use quick-clean.bat (Easiest)
+Just double-click `quick-clean.bat` or run:
+```bash
+quick-clean.bat
 ```
 
-**注意**: 如果遇到脚本执行错误，请使用 `cleanup-project-safe.ps1`，这是兼容性更好的版本。
+#### Option B: Use interactive cleanup
+```bash
+cleanup.bat
+```
 
-### 清理后验证：
+#### Option C: Use PowerShell directly
+```powershell
+powershell -ExecutionPolicy Bypass -File .\simple-cleanup.ps1
+```
 
-1. 检查项目结构是否正确
-2. 运行Docker构建测试：
-   ```powershell
-   .\test-docker-build.bat
+## After Cleanup:
+
+1. Verify project structure
+2. Run Docker build test:
+   ```bash
+   test-docker-build.bat
    ```
 
-### 注意事项：
-- 建议在清理前备份项目
-- 清理脚本会跳过 .git 目录
-- 如果有自定义的重要文件，请先移到安全位置
+## Files That Will Be Deleted:
+
+- Test files: test*.html, test.db, *.py
+- Build artifacts: *.exe, mmbs-modular, at-mmbs-test
+- Temporary files: *.log, *_old.go.bak
+- Documentation: improvement_suggestions.md, WORK_COMPLETED.md
+- Database fixes: fix_database*.sql
+- Config: container.config.json
+
+## Important Notes:
+
+- These scripts will NOT delete files in .git directory
+- Source code and essential files are preserved
+- Always backup your project before cleaning
