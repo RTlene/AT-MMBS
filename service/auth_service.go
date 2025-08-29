@@ -28,13 +28,13 @@ func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	switch path {
 	case "/api/auth/login":
 		if r.Method == http.MethodPost {
-			handleLogin(w, r)
+			handleJWTLogin(w, r) // 使用JWT版本
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	case "/api/auth/validate":
 		if r.Method == http.MethodGet {
-			handleValidateToken(w, r)
+			handleJWTValidate(w, r) // 使用JWT版本
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}

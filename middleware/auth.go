@@ -25,15 +25,17 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		
 		token := parts[1]
 		
-		// 验证token
-		userID, err := service.ValidateToken(token)
+		// 验证JWT token
+		claims, err := service.ValidateJWT(token)
 		if err != nil {
 			service.WriteUnauthorized(w, "认证失败: "+err.Error())
 			return
 		}
 		
-		// 将用户ID添加到请求上下文
-		r.Header.Set("X-User-ID", userID)
+		// 将用户信息添加到请求上下文
+		r.Header.Set("X-User-ID", claims.UserID)
+		r.Header.Set("X-User-Role", claims.Role)
+		r.Header.Set("X-Username", claims.Username)
 		
 		// 继续处理请求
 		next(w, r)
@@ -43,11 +45,10 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 // AdminMiddleware 管理员权限中间件
 func AdminMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		userID := r.Header.Get("X-User-ID")
+		role := r.Header.Get("X-User-Role")
 		
 		// 检查用户是否为管理员
-		isAdmin, err := service.IsUserAdmin(userID)
-		if err != nil || !isAdmin {
+		if role != "admin" {
 			service.WriteForbidden(w, "需要管理员权限")
 			return
 		}
