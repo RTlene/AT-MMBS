@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # MySQL database service - using port 3307 to avoid conflicts
+  mysql:
+    image: mysql:8.0
+    container_name: at-mmbs-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123456}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-golang_demo}
+      MYSQL_USER: ${MYSQL_USER:-mmbs_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mmbs_pass123}
+    ports:
+      - "3307:3306"  # Changed from 3306:3306 to avoid conflict
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    networks:
+      - mmbs-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root123456}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Application service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: at-mmbs-app
+    restart: always
+    environment:
+      MYSQL_USERNAME: ${MYSQL_USER:-mmbs_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mmbs_pass123}
+      MYSQL_ADDRESS: mysql:3306  # Still use 3306 internally
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-golang_demo}
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-this}
+      PORT: 80
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - mmbs-network
+
+  # Nginx reverse proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: at-mmbs-nginx
+    restart: always
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./uploads:/usr/share/nginx/html/uploads:ro
+    depends_on:
+      - app
+    networks:
+      - mmbs-network
+
+# Network configuration
+networks:
+  mmbs-network:
+    driver: bridge
+
+# Volume configuration
+volumes:
+  mysql_data:
+    driver: local
