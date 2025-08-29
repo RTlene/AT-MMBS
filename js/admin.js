@@ -147,11 +147,19 @@ async function checkLoginStatus() {
                 currentUser = { ...currentUser, ...result.data };
                 updateUserInfo();
             } else {
+                console.log('Profile API returned error code:', result.code);
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('userInfo');
                 window.location.href = '/login.html';
             }
+        } else if (response.status === 401) {
+            console.log('401 Unauthorized - Token may be invalid after container restart');
+            alert('会话已过期，请重新登录（可能是服务重启导致）');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userInfo');
+            window.location.href = '/login.html';
         } else {
+            console.log('Profile API returned status:', response.status);
             localStorage.removeItem('authToken');
             localStorage.removeItem('userInfo');
             window.location.href = '/login.html';
@@ -183,7 +191,7 @@ async function handleLogin(event) {
         
         const result = await response.json();
         if (result.code === 0) {
-            localStorage.setItem('adminToken', result.data.token);
+            localStorage.setItem('authToken', result.data.token);
             currentUser = result.data;
             window.location.href = '/admin.html';
         } else {

@@ -174,10 +174,18 @@
                 });
                 
                 if (response.ok) {
-                    // token有效，跳转到管理后台
-                    window.location.href = '/admin';
+                    const result = await response.json();
+                    if (result.code === 0) {
+                        // token有效，跳转到管理后台
+                        window.location.href = '/admin.html';
+                    } else {
+                        // token无效，清除本地存储
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('userInfo');
+                    }
                 } else {
                     // token无效，清除本地存储
+                    console.log('Token validation failed with status:', response.status);
                     localStorage.removeItem('authToken');
                     localStorage.removeItem('userInfo');
                 }
@@ -231,7 +239,7 @@
                     
                     // 延迟跳转
                     setTimeout(() => {
-                        window.location.href = '/admin';
+                        window.location.href = '/admin.html';
                     }, 1000);
                 } else {
                     // 登录失败
