@@ -1,5 +1,5 @@
 # 使用多阶段构建优化镜像大小
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # 安装必要的构建工具
 RUN apk add --no-cache git ca-certificates tzdata
