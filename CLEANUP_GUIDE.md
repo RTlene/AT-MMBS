@@ -22,23 +22,29 @@ git checkout HEAD -- .
 
 #### 步骤 3：预览将要删除的文件（推荐先执行）
 ```powershell
+# 使用兼容版本（推荐）
+.\cleanup-project-safe.ps1 -DryRun
+
+# 或者原版本（如果PowerShell支持Unicode）
 .\cleanup-project.ps1 -DryRun
 ```
 
 #### 步骤 4：执行清理
 ```powershell
-# 基本清理（删除所有不必要的文件）
-.\cleanup-project.ps1
+# 使用兼容版本（推荐）- 基本清理
+.\cleanup-project-safe.ps1
 
 # 保留测试文件
-.\cleanup-project.ps1 -KeepTests
+.\cleanup-project-safe.ps1 -KeepTests
 
 # 保留日志文件
-.\cleanup-project.ps1 -KeepLogs
+.\cleanup-project-safe.ps1 -KeepLogs
 
 # 保留测试和日志文件
-.\cleanup-project.ps1 -KeepTests -KeepLogs
+.\cleanup-project-safe.ps1 -KeepTests -KeepLogs
 ```
+
+**注意**: 如果遇到脚本执行错误，请使用 `cleanup-project-safe.ps1`，这是兼容性更好的版本。
 
 ### 清理后验证：
 
