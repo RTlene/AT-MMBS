@@ -124,11 +124,17 @@ function bindEventListeners() {
 
 // 登录状态检查
 async function checkLoginStatus() {
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('authToken');
     if (!token) {
         window.location.href = '/login.html';
         return;
     }
+    
+    // 设置currentUser对象以便addAuthHeader可以使用
+    currentUser = {
+        token: token,
+        info: JSON.parse(localStorage.getItem('userInfo') || '{}')
+    };
     
     try {
         const response = await fetch('/api/users/profile', {
@@ -138,19 +144,22 @@ async function checkLoginStatus() {
         if (response.ok) {
             const result = await response.json();
             if (result.code === 0) {
-                currentUser = result.data;
+                currentUser = { ...currentUser, ...result.data };
                 updateUserInfo();
             } else {
-                localStorage.removeItem('adminToken');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userInfo');
                 window.location.href = '/login.html';
             }
         } else {
-            localStorage.removeItem('adminToken');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userInfo');
             window.location.href = '/login.html';
         }
     } catch (error) {
         console.error('检查登录状态失败:', error);
-        localStorage.removeItem('adminToken');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userInfo');
         window.location.href = '/login.html';
     }
 }
@@ -188,7 +197,8 @@ async function handleLogin(event) {
 
 // 处理登出
 function handleLogout() {
-    localStorage.removeItem('adminToken');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userInfo');
     currentUser = null;
     window.location.href = '/login.html';
 }
