@@ -23,19 +23,46 @@ func Init() error {
 	pwd := os.Getenv("MYSQL_PASSWORD")
 	addr := os.Getenv("MYSQL_ADDRESS")
 	dataBase := os.Getenv("MYSQL_DATABASE")
+	
+	// 设置默认值
+	if user == "" {
+		user = "root"
+	}
+	if addr == "" {
+		addr = "localhost:3306"
+	}
 	if dataBase == "" {
 		dataBase = "golang_demo"
 	}
+	
 	source = fmt.Sprintf(source, user, pwd, addr, dataBase)
 	fmt.Println("start init mysql with ", source)
+	fmt.Printf("MySQL connection details: user=%s, addr=%s, database=%s\n", user, addr, dataBase)
 
-	db, err := gorm.Open(mysql.Open(source), &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{
-			SingularTable: true, // use singular table name, table for `User` would be `user` with this option enabled
-		}})
+	// Retry connection with exponential backoff
+	var db *gorm.DB
+	var err error
+	maxRetries := 10
+	for i := 0; i < maxRetries; i++ {
+		db, err = gorm.Open(mysql.Open(source), &gorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true, // use singular table name, table for `User` would be `user` with this option enabled
+			}})
+		if err == nil {
+			fmt.Println("Successfully connected to MySQL")
+			break
+		}
+		
+		fmt.Printf("DB Open error (attempt %d/%d): %s\n", i+1, maxRetries, err.Error())
+		if i < maxRetries-1 {
+			waitTime := time.Duration(i+1) * 2 * time.Second
+			fmt.Printf("Waiting %v before retry...\n", waitTime)
+			time.Sleep(waitTime)
+		}
+	}
+	
 	if err != nil {
-		fmt.Println("DB Open error,err=", err.Error())
-		return err
+		return fmt.Errorf("failed to connect to MySQL after %d attempts: %w", maxRetries, err)
 	}
 
 	sqlDB, err := db.DB()
