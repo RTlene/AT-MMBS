@@ -248,8 +248,10 @@
                     localStorage.setItem('authToken', result.data.token);
                     localStorage.setItem('userInfo', JSON.stringify(result.data.user));
                     
-                    // 立即跳转，无需延迟
-                    window.location.href = '/admin.html';
+                    // 延迟3秒跳转，让用户看到成功提示
+                    setTimeout(() => {
+                        window.location.href = '/admin.html';
+                    }, 3000);
                 } else {
                     // 登录失败
                     showError(result.errorMsg || '登录失败');
