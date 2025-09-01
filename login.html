@@ -126,8 +126,63 @@
             to { transform: rotate(360deg); }
         }
     </style>
+    <script>
+        // 简化版的showMessage函数，仅用于登录页
+        function showMessage(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 5px;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                max-width: 300px;
+            `;
+            
+            const colors = {
+                'info': { bg: '#d1ecf1', text: '#0c5460' },
+                'success': { bg: '#d4edda', text: '#155724' },
+                'warning': { bg: '#fff3cd', text: '#856404' },
+                'danger': { bg: '#f8d7da', text: '#721c24' }
+            };
+            
+            const color = colors[type] || colors['info'];
+            alertDiv.style.backgroundColor = color.bg;
+            alertDiv.style.color = color.text;
+            alertDiv.innerHTML = message;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 3000);
+        }
+        
+        function showSuccess(message) {
+            showMessage(message, 'success');
+        }
+        
+        function showError(message) {
+            showMessage(message, 'danger');
+        }
+    </script>
+    <style>
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    </style>
 </head>
 <body>
+    <!-- 消息容器 -->
+    <div id="messageContainer" style="position: fixed; top: 20px; right: 20px; z-index: 1050; width: 300px;"></div>
     <div class="login-container">
         <div class="login-header">
             <h1>🏪 商城后台管理系统</h1>
