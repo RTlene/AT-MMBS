@@ -157,6 +157,17 @@
     <script>
         // 检查是否已经登录
         function checkLoginStatus() {
+            // 检查URL参数，如果是强制登出则清空缓存
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('logout') === 'true') {
+                // 强制清空所有登录相关缓存
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userInfo');
+                // 清除URL参数，避免重复清理
+                window.history.replaceState({}, document.title, '/login.html');
+                return;
+            }
+            
             const token = localStorage.getItem('authToken');
             if (token) {
                 // 验证token有效性
@@ -237,10 +248,10 @@
                     localStorage.setItem('authToken', result.data.token);
                     localStorage.setItem('userInfo', JSON.stringify(result.data.user));
                     
-                    // 延迟跳转
+                    // 延迟跳转（缩短到500ms）
                     setTimeout(() => {
                         window.location.href = '/admin.html';
-                    }, 1000);
+                    }, 500);
                 } else {
                     // 登录失败
                     showError(result.errorMsg || '登录失败');
