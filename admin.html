@@ -1469,7 +1469,7 @@
                 // 先加载分类数据
                 let categories = [];
                 try {
-                    const categoriesResponse = await fetch('/api/categories');
+                    const categoriesResponse = await fetch('/api/categories', addAuthHeader());
                     if (categoriesResponse.ok) {
                         const categoriesResult = await categoriesResponse.json();
                         if (categoriesResult.code === 0) {
@@ -1486,7 +1486,7 @@
                     categoryMap.set(cat.id, cat.name);
                 });
                 
-                const response = await fetch('/api/products'); // 商品数据API端点
+                const response = await fetch('/api/products', addAuthHeader()); // 商品数据API端点
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -1571,7 +1571,7 @@
             container.innerHTML = '<p>加载中...</p>'; // 加载指示器
 
             try {
-                const response = await fetch('/api/categories'); // 假设分类数据API端点为 /api/categories
+                const response = await fetch('/api/categories', addAuthHeader()); // 假设分类数据API端点为 /api/categories
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -1743,7 +1743,7 @@
             tbody.innerHTML = '<tr><td colspan="8">加载中...</td></tr>'; // 加载指示器
 
             try {
-                const response = await fetch('/api/members'); // 假设会员数据API端点为 /api/members
+                const response = await fetch('/api/members', addAuthHeader()); // 假设会员数据API端点为 /api/members
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -1783,9 +1783,7 @@
 
         // 加载会员等级数据
         function loadMemberLevelsData() {
-            fetch('/api/member-levels', {
-                headers: addAuthHeader()
-            })
+            fetch('/api/member-levels', addAuthHeader())
             .then(response => response.json())
             .then(result => {
                 if (result.code === 0 && result.data) {
@@ -1825,7 +1823,7 @@
             tbody.innerHTML = '<tr><td colspan="6">加载中...</td></tr>'; // 加载指示器
 
             try {
-                const response = await fetch('/api/distributor-levels'); // 假设分销等级数据API端点为 /api/distributor-levels
+                const response = await fetch('/api/distributor-levels', addAuthHeader()); // 假设分销等级数据API端点为 /api/distributor-levels
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -1868,7 +1866,7 @@
             tbody.innerHTML = '<tr><td colspan="7">加载中...</td></tr>'; // 加载指示器
 
             try {
-                const response = await fetch('/api/orders'); // 假设订单数据API端点为 /api/orders
+                const response = await fetch('/api/orders', addAuthHeader()); // 假设订单数据API端点为 /api/orders
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -1918,7 +1916,7 @@
             tbody.innerHTML = '<tr><td colspan="7">加载中...</td></tr>'; // 加载指示器
 
             try {
-                const response = await fetch('/api/payments'); // 假设支付数据API端点为 /api/payments
+                const response = await fetch('/api/payments', addAuthHeader()); // 假设支付数据API端点为 /api/payments
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -1969,7 +1967,7 @@
                 if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
                 if (statusFilter) url += `status=${statusFilter}`;
                 
-                const response = await fetch(url);
+                const response = await fetch(url, addAuthHeader());
                 if (!response.ok) {
                     throw new Error('搜索用户失败');
                 }
@@ -1992,7 +1990,7 @@
                 if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
                 if (categoryFilter) url += `category=${categoryFilter}`;
                 
-                const response = await fetch(url);
+                const response = await fetch(url, addAuthHeader());
                 if (!response.ok) {
                     throw new Error('搜索商品失败');
                 }
@@ -2015,7 +2013,7 @@
                 if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
                 if (levelFilter) url += `level=${levelFilter}`;
                 
-                const response = await fetch(url);
+                const response = await fetch(url, addAuthHeader());
                 if (!response.ok) {
                     throw new Error('搜索会员失败');
                 }
@@ -2038,7 +2036,7 @@
                 if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
                 if (statusFilter) url += `status=${statusFilter}`;
                 
-                const response = await fetch(url);
+                const response = await fetch(url, addAuthHeader());
                 if (!response.ok) {
                     throw new Error('搜索订单失败');
                 }
@@ -2061,7 +2059,7 @@
                 if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
                 if (statusFilter) url += `status=${statusFilter}`;
                 
-                const response = await fetch(url);
+                const response = await fetch(url, addAuthHeader());
                 if (!response.ok) {
                     throw new Error('搜索支付失败');
                 }
@@ -2085,7 +2083,7 @@
                 if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
                 if (status) url += `status=${status}`;
                 
-                const response = await fetch(url);
+                const response = await fetch(url, addAuthHeader());
                 if (!response.ok) {
                     throw new Error('筛选用户失败');
                 }
@@ -2108,7 +2106,7 @@
                 if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
                 if (category) url += `category=${category}`;
                 
-                const response = await fetch(url);
+                const response = await fetch(url, addAuthHeader());
                 if (!response.ok) {
                     throw new Error('筛选商品失败');
                 }
@@ -2131,7 +2129,7 @@
                 if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
                 if (level) url += `level=${level}`;
                 
-                const response = await fetch(url);
+                const response = await fetch(url, addAuthHeader());
                 if (!response.ok) {
                     throw new Error('筛选会员失败');
                 }
@@ -2154,7 +2152,7 @@
                 if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
                 if (status) url += `status=${status}`;
                 
-                const response = await fetch(url);
+                const response = await fetch(url, addAuthHeader());
                 if (!response.ok) {
                     throw new Error('筛选订单失败');
                 }
@@ -2177,7 +2175,7 @@
                 if (searchTerm) url += `search=${encodeURIComponent(searchTerm)}&`;
                 if (status) url += `status=${status}`;
                 
-                const response = await fetch(url);
+                const response = await fetch(url, addAuthHeader());
                 if (!response.ok) {
                     throw new Error('筛选支付失败');
                 }
@@ -3045,9 +3043,12 @@
             const token = localStorage.getItem('authToken');
             const userInfo = localStorage.getItem('userInfo');
             
+            console.log('Checking auth - Token:', token ? 'exists' : 'missing', 'UserInfo:', userInfo ? 'exists' : 'missing');
+            
             if (!token || !userInfo) {
                 // 没有认证信息，跳转到登录页面
-                window.location.href = '/login';
+                console.log('Auth check failed - redirecting to login');
+                window.location.href = '/login.html';
                 return false;
             }
             
@@ -3060,7 +3061,7 @@
                 console.error('解析用户信息失败:', error);
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('userInfo');
-                window.location.href = '/login';
+                window.location.href = '/login.html';
                 return false;
             }
         }
@@ -3086,7 +3087,7 @@
                 localStorage.removeItem('userInfo');
                 
                 // 跳转到登录页面
-                window.location.href = '/login';
+                window.location.href = '/login.html';
             }
         }
 
@@ -3296,21 +3297,14 @@
         }
 
         // 页面加载完成后初始化
+        // 注意：认证检查和模块显示已经在admin.js中处理
         document.addEventListener('DOMContentLoaded', function() {
-            // 检查认证状态
-            if (!checkAuth()) {
-                return;
-            }
-            
             // 设置图片预览
             setupImagePreview('productImage', 'productImagePreview');
             setupImagePreview('editProductImage', 'editProductImagePreview');
             
             // 页面加载时自动加载分类数据，确保下拉框可用
-            loadCategoriesData();
-            
-            // 默认显示仪表盘
-            showModule('dashboard');
+            // loadCategoriesData(); // 这会在showModule时自动调用
         });
         
         // 更新商品函数

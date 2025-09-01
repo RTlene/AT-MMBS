@@ -6,7 +6,11 @@ let pageSize = 10;
 
 // 工具函数
 function addAuthHeader(headers = {}) {
-    if (currentUser && currentUser.token) {
+    // 优先使用localStorage中的token
+    const token = localStorage.getItem('authToken');
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    } else if (currentUser && currentUser.token) {
         headers['Authorization'] = `Bearer ${currentUser.token}`;
     }
     return headers;
