@@ -1521,13 +1521,7 @@
                             ? categoryMap.get(product.category) 
                             : (product.category || '未知分类');
                         
-                        // 安全转义商品名称，用于JavaScript函数参数
-                        const safeProductName = (product.name || product.productName || '未知商品')
-                            .replace(/\\/g, '\\\\')  // 先转义反斜杠
-                            .replace(/'/g, "\\'")    // 转义单引号
-                            .replace(/"/g, '\\"')    // 转义双引号
-                            .replace(/\n/g, '\\n')   // 转义换行符
-                            .replace(/\r/g, '\\r');  // 转义回车符
+
 
                         html += `
                             <tr>
@@ -1541,7 +1535,7 @@
                                 <td>
                                     <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="editProduct('${product.id}')">编辑</button>
                                     <button class="btn btn-warning" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="toggleProductStatus('${product.id}')">${statusText === '上架' ? '下架' : '上架'}</button>
-                                    <button class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="deleteProduct('${product.id}', '${safeProductName}')">删除</button>
+                                    <button class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="deleteProduct('${product.id}', decodeURIComponent('${encodeURIComponent(product.name || product.productName || '未知商品')}'))">删除</button>
                                 </td>
                             </tr>
                         `;
@@ -1586,19 +1580,7 @@
                     if (parentCategories.length > 0) {
                         parentCategories.sort((a, b) => a.sort - b.sort); // 假设有sort字段用于排序
                         parentCategories.forEach(parentCat => {
-                            // 安全转义分类名称和描述，用于JavaScript函数参数
-                            const safeCatName = (parentCat.name || '')
-                                .replace(/\\/g, '\\\\')
-                                .replace(/'/g, "\\'")
-                                .replace(/"/g, '\\"')
-                                .replace(/\n/g, '\\n')
-                                .replace(/\r/g, '\\r');
-                            const safeCatDesc = (parentCat.description || '')
-                                .replace(/\\/g, '\\\\')
-                                .replace(/'/g, "\\'")
-                                .replace(/"/g, '\\"')
-                                .replace(/\n/g, '\\n')
-                                .replace(/\r/g, '\\r');
+
                             
                             html += `
                                 <div class="module-section">
@@ -1610,26 +1592,14 @@
                             if (children && children.length > 0) {
                                 children.sort((a, b) => a.sort - b.sort); // 假设有sort字段用于排序
                                 children.forEach(childCat => {
-                                    // 安全转义子分类名称和描述
-                                    const safeChildName = (childCat.name || '')
-                                        .replace(/\\/g, '\\\\')
-                                        .replace(/'/g, "\\'")
-                                        .replace(/"/g, '\\"')
-                                        .replace(/\n/g, '\\n')
-                                        .replace(/\r/g, '\\r');
-                                    const safeChildDesc = (childCat.description || '')
-                                        .replace(/\\/g, '\\\\')
-                                        .replace(/'/g, "\\'")
-                                        .replace(/"/g, '\\"')
-                                        .replace(/\n/g, '\\n')
-                                        .replace(/\r/g, '\\r');
+
                                     
                                     html += `
                                         <div style="margin: 0.5rem 0; padding-left: 1rem;">
                                             <span>• ${childCat.name}</span>
                                             ${childCat.description ? `<p style="color: #666; margin: 0.2rem 0; font-size: 0.9rem;">${childCat.description}</p>` : ''}
                                             <div style="margin-top: 0.5rem;">
-                                                <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="editCategory('${childCat.id}', '${safeChildName}', '${safeChildDesc}', '${childCat.parent_id || ''}')">编辑</button>
+                                                <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="editCategory('${childCat.id}', decodeURIComponent('${encodeURIComponent(childCat.name || '')}'), decodeURIComponent('${encodeURIComponent(childCat.description || '')}'), '${childCat.parent_id || ''}')">编辑</button>
                                                 <button class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="deleteCategory('${childCat.id}')">删除</button>
                                             </div>
                                         </div>
@@ -1641,7 +1611,7 @@
                             html += `
                                     </div>
                                     <div style="margin-top: 0.5rem;">
-                                        <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="editCategory('${parentCat.id}', '${safeCatName}', '${safeCatDesc}', '${parentCat.parent_id || ''}')">编辑</button>
+                                        <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="editCategory('${parentCat.id}', decodeURIComponent('${encodeURIComponent(parentCat.name || '')}'), decodeURIComponent('${encodeURIComponent(parentCat.description || '')}'), '${parentCat.parent_id || ''}')">编辑</button>
                                         <button class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="deleteCategory('${parentCat.id}')">删除</button>
                                     </div>
                                 </div>
