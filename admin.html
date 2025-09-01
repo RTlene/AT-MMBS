@@ -1593,7 +1593,7 @@
                                             <span>• ${childCat.name}</span>
                                             ${childCat.description ? `<p style="color: #666; margin: 0.2rem 0; font-size: 0.9rem;">${childCat.description}</p>` : ''}
                                             <div style="margin-top: 0.5rem;">
-                                                <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="editCategory('${childCat.id}', '${childCat.name}', '${childCat.description || ''}', '${childCat.parent_id || ''}')">编辑</button>
+                                                <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="editCategory('${childCat.id}', '${childCat.name.replace(/'/g, "\\'").replace(/"/g, '\\"')}', '${(childCat.description || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}', '${childCat.parent_id || ''}')">编辑</button>
                                                 <button class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="deleteCategory('${childCat.id}')">删除</button>
                                             </div>
                                         </div>
@@ -1605,7 +1605,7 @@
                             html += `
                                     </div>
                                     <div style="margin-top: 0.5rem;">
-                                        <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="editCategory('${parentCat.id}', '${parentCat.name}', '${parentCat.description || ''}', '${parentCat.parent_id || ''}')">编辑</button>
+                                        <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="editCategory('${parentCat.id}', '${parentCat.name.replace(/'/g, "\\'").replace(/"/g, '\\"')}', '${(parentCat.description || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}', '${parentCat.parent_id || ''}')">编辑</button>
                                         <button class="btn btn-danger" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;" onclick="deleteCategory('${parentCat.id}')">删除</button>
                                     </div>
                                 </div>
