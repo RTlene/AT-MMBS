@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #messageContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>AT-MMBS 模块功能测试</h1>
+    
+    <!-- 消息容器 -->
+    <div id="messageContainer"></div>
+    
+    <div class="test-section">
+        <h2>1. 全局函数测试</h2>
+        <button onclick="testShowMessage()">测试 showMessage</button>
+        <button onclick="testShowSuccess()">测试 showSuccess</button>
+        <button onclick="testShowError()">测试 showError</button>
+        <button onclick="testShowModal()">测试 showModal</button>
+        <div id="test1-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 模块加载测试</h2>
+        <button onclick="testModuleLoading()">检查所有模块</button>
+        <div id="test2-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. API 函数测试</h2>
+        <button onclick="testAPIFunctions()">测试 API 函数</button>
+        <div id="test3-results"></div>
+    </div>
+    
+    <!-- 测试模态框 -->
+    <div id="testModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+        <div style="background:white; margin:50px auto; padding:20px; width:300px; position:relative;">
+            <h3>测试模态框</h3>
+            <p>这是一个测试模态框</p>
+            <button onclick="closeModal('testModal')">关闭</button>
+        </div>
+    </div>
+    
+    <!-- 加载所有 JS 文件 -->
+    <script src="js/admin.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/users.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/members.js"></script>
+    <script src="js/member-levels.js"></script>
+    <script src="js/distributor-levels.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/payments.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/settings.js"></script>
+    
+    <script>
+        // 添加我们新增的全局函数
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+        
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        function showSuccess(message) {
+            showMessage(message, 'success');
+        }
+        
+        function showError(message) {
+            showMessage(message, 'danger');
+        }
+        
+        function showWarning(message) {
+            showMessage(message, 'warning');
+        }
+        
+        function showInfo(message) {
+            showMessage(message, 'info');
+        }
+        
+        // 测试函数
+        function testShowMessage() {
+            showMessage('这是一个普通消息', 'info');
+            addTestResult('test1-results', '✓ showMessage 函数正常', 'success');
+        }
+        
+        function testShowSuccess() {
+            showSuccess('这是一个成功消息');
+            addTestResult('test1-results', '✓ showSuccess 函数正常', 'success');
+        }
+        
+        function testShowError() {
+            showError('这是一个错误消息');
+            addTestResult('test1-results', '✓ showError 函数正常', 'success');
+        }
+        
+        function testShowModal() {
+            showModal('testModal');
+            setTimeout(() => {
+                closeModal('testModal');
+                addTestResult('test1-results', '✓ showModal/closeModal 函数正常', 'success');
+            }, 1000);
+        }
+        
+        function testModuleLoading() {
+            const modules = [
+                { name: 'loadUsersData', module: 'users.js' },
+                { name: 'loadProductsData', module: 'products.js' },
+                { name: 'loadCategoriesData', module: 'categories.js' },
+                { name: 'loadMembersData', module: 'members.js' },
+                { name: 'loadMemberLevelsData', module: 'member-levels.js' },
+                { name: 'loadDistributorLevelsData', module: 'distributor-levels.js' },
+                { name: 'loadOrdersData', module: 'orders.js' },
+                { name: 'loadPaymentsData', module: 'payments.js' },
+                { name: 'loadDashboardData', module: 'dashboard.js' }
+            ];
+            
+            modules.forEach(mod => {
+                if (typeof window[mod.name] === 'function') {
+                    addTestResult('test2-results', `✓ ${mod.module} - ${mod.name} 函数存在`, 'success');
+                } else {
+                    addTestResult('test2-results', `✗ ${mod.module} - ${mod.name} 函数不存在`, 'error');
+                }
+            });
+        }
+        
+        function testAPIFunctions() {
+            const apiFunctions = [
+                { name: 'saveUser', module: 'users.js' },
+                { name: 'editUser', module: 'users.js' },
+                { name: 'deleteUser', module: 'users.js' },
+                { name: 'toggleUserStatus', module: 'users.js' },
+                { name: 'saveProduct', module: 'products.js' },
+                { name: 'editProduct', module: 'products.js' },
+                { name: 'deleteProduct', module: 'products.js' },
+                { name: 'toggleProductStatus', module: 'products.js' },
+                { name: 'saveCategory', module: 'categories.js' },
+                { name: 'editCategory', module: 'categories.js' },
+                { name: 'deleteCategory', module: 'categories.js' }
+            ];
+            
+            apiFunctions.forEach(func => {
+                if (typeof window[func.name] === 'function') {
+                    addTestResult('test3-results', `✓ ${func.module} - ${func.name} 函数存在`, 'success');
+                } else {
+                    addTestResult('test3-results', `✗ ${func.module} - ${func.name} 函数不存在`, 'error');
+                }
+            });
+            
+            // 测试 addAuthHeader
+            if (typeof addAuthHeader === 'function') {
+                const headers = addAuthHeader();
+                addTestResult('test3-results', `✓ addAuthHeader 函数正常工作`, 'success');
+            }
+        }
+        
+        function addTestResult(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            const result = document.createElement('div');
+            result.className = `test-result ${type}`;
+            result.textContent = message;
+            container.appendChild(result);
+        }
+    </script>
+</body>
+</html>

@@ -1,5 +1,20 @@
 // 商品管理JavaScript文件
 
+// HTML转义函数
+const escapeHtml = (str) => {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, function(match) {
+        const escape = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return escape[match];
+    });
+};
+
 // 商品相关变量
 let currentProductId = null;
 let uploadedImages = [];
@@ -56,7 +71,7 @@ function displayProducts(products) {
                 <button class="btn btn-sm btn-warning" onclick="toggleProductStatus('${product.id}')">
                     ${product.status === 1 ? '下架' : '上架'}
                 </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product.id}')">删除</button>
+                <button class="btn btn-sm btn-danger" onclick="showDeleteProductModal('${product.id}', '${escapeHtml(product.name || product.productName || '未知商品')}')">删除</button>
             </td>
         `;
         tbody.appendChild(row);
@@ -318,10 +333,6 @@ async function updateProduct() {
 
 // 删除商品
 async function deleteProduct(productId) {
-    if (!confirm('确定要删除这个商品吗？')) {
-        return;
-    }
-    
     try {
         const response = await fetch(`/api/products/${productId}`, {
             method: 'DELETE',
