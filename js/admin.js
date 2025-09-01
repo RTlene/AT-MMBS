@@ -17,21 +17,47 @@ function addAuthHeader(headers = {}) {
 }
 
 function showMessage(message, type = 'info') {
+    // 创建消息元素
     const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    alertDiv.style.cssText = `
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        position: relative;
+        animation: slideIn 0.3s ease;
     `;
     
-    const container = document.querySelector('.container-fluid');
-    container.insertBefore(alertDiv, container.firstChild);
+    // 根据类型设置颜色
+    const colors = {
+        'info': { bg: '#d1ecf1', border: '#bee5eb', text: '#0c5460' },
+        'success': { bg: '#d4edda', border: '#c3e6cb', text: '#155724' },
+        'warning': { bg: '#fff3cd', border: '#ffeeba', text: '#856404' },
+        'danger': { bg: '#f8d7da', border: '#f5c6cb', text: '#721c24' }
+    };
     
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 5000);
+    const color = colors[type] || colors['info'];
+    alertDiv.style.backgroundColor = color.bg;
+    alertDiv.style.border = `1px solid ${color.border}`;
+    alertDiv.style.color = color.text;
+    
+    alertDiv.innerHTML = `
+        ${message}
+        <button onclick="this.parentElement.remove()" style="position: absolute; right: 10px; top: 10px; background: none; border: none; font-size: 20px; cursor: pointer; color: ${color.text};">&times;</button>
+    `;
+    
+    // 添加到消息容器
+    const container = document.getElementById('messageContainer');
+    if (container) {
+        container.appendChild(alertDiv);
+        
+        // 5秒后自动消失
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => alertDiv.remove(), 300);
+            }
+        }, 5000);
+    }
 }
 
 // 模块显示管理

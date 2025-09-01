@@ -574,6 +574,10 @@
         </div>
     </div>
 
+    <!-- 消息提示容器 -->
+    <div id="messageContainer" style="position: fixed; top: 80px; right: 20px; z-index: 1050; width: 300px;">
+    </div>
+
     <div class="container">
         <nav class="sidebar">
             <ul class="sidebar-menu">
@@ -984,6 +988,10 @@
                  <input type="email" class="form-control" id="userEmail" placeholder="请输入邮箱">
              </div>
              <div class="form-group">
+                 <label>手机号</label>
+                 <input type="text" class="form-control" id="userPhone" placeholder="请输入手机号">
+             </div>
+             <div class="form-group">
                  <label>密码</label>
                  <input type="password" class="form-control" id="userPassword" placeholder="请输入密码">
              </div>
@@ -994,6 +1002,11 @@
                      <option value="admin">管理员</option>
                      <option value="superadmin">超级管理员</option>
                  </select>
+             </div>
+             <div class="form-group">
+                 <label>
+                     <input type="checkbox" id="userStatus" checked> 启用账号
+                 </label>
              </div>
              <div class="form-group">
                  <button class="btn btn-success" onclick="saveUser()">保存</button>
@@ -1019,12 +1032,25 @@
                  <input type="password" class="form-control" id="editUserPassword" placeholder="留空则不修改密码">
              </div>
              <div class="form-group">
+                 <label>邮箱</label>
+                 <input type="email" class="form-control" id="editUserEmail" placeholder="请输入邮箱">
+             </div>
+             <div class="form-group">
+                 <label>手机号</label>
+                 <input type="text" class="form-control" id="editUserPhone" placeholder="请输入手机号">
+             </div>
+             <div class="form-group">
                  <label>角色</label>
                  <select class="form-control" id="editUserRole">
                      <option value="user">普通用户</option>
                      <option value="admin">管理员</option>
                      <option value="superadmin">超级管理员</option>
                  </select>
+             </div>
+             <div class="form-group">
+                 <label>
+                     <input type="checkbox" id="editUserStatus"> 启用账号
+                 </label>
              </div>
              <div class="form-group">
                  <button class="btn btn-success" onclick="updateUser()">更新</button>
@@ -1387,5 +1413,103 @@
     </div>
 
     <!-- JavaScript功能已分离到独立文件中 -->
+    
+    <!-- 通用功能函数 -->
+    <script>
+        // 显示模态框
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                // 清空表单（如果是添加模态框）
+                if (modalId.includes('add')) {
+                    const form = modal.querySelector('form');
+                    if (form) form.reset();
+                }
+            }
+        }
+        
+        // 关闭模态框
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // 显示成功消息
+        function showSuccess(message) {
+            showMessage(message, 'success');
+        }
+        
+        // 显示错误消息
+        function showError(message) {
+            showMessage(message, 'danger');
+        }
+        
+        // 显示警告消息
+        function showWarning(message) {
+            showMessage(message, 'warning');
+        }
+        
+        // 显示信息消息
+        function showInfo(message) {
+            showMessage(message, 'info');
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+        
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 全局变量存储要删除的产品ID和名称
+        let productToDelete = null;
+        
+        // 确认删除产品（模态框方式）
+        function confirmDeleteProduct() {
+            if (productToDelete) {
+                deleteProduct(productToDelete.id);
+                closeModal('deleteProductModal');
+                productToDelete = null;
+            }
+        }
+        
+        // 显示删除确认模态框
+        function showDeleteProductModal(productId, productName) {
+            productToDelete = { id: productId, name: productName };
+            document.getElementById('deleteProductName').textContent = productName;
+            document.getElementById('deleteProductId').textContent = productId;
+            showModal('deleteProductModal');
+        }
+    </script>
 </body>
 </html>
