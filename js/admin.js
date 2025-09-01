@@ -129,47 +129,38 @@ function bindEventListeners() {
 // 登录状态检查
 async function checkLoginStatus() {
     const token = localStorage.getItem('authToken');
-    if (!token) {
+    const userInfo = localStorage.getItem('userInfo');
+    
+    if (!token || !userInfo) {
         window.location.href = '/login.html';
         return;
     }
     
-    // 设置currentUser对象以便addAuthHeader可以使用
-    currentUser = {
-        token: token,
-        info: JSON.parse(localStorage.getItem('userInfo') || '{}')
-    };
-    
     try {
-        const response = await fetch('/api/users/profile', {
+        // 使用localStorage中保存的用户信息
+        const user = JSON.parse(userInfo);
+        currentUser = {
+            token: token,
+            username: user.username,
+            ...user
+        };
+        
+        updateUserInfo();
+        
+        // 可选：验证token是否仍然有效
+        // 通过调用一个简单的API来测试
+        const testResponse = await fetch('/api/users', {
             headers: addAuthHeader()
         });
         
-        if (response.ok) {
-            const result = await response.json();
-            if (result.code === 0) {
-                currentUser = { ...currentUser, ...result.data };
-                updateUserInfo();
-            } else {
-                console.log('Profile API returned error code:', result.code);
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userInfo');
-                window.location.href = '/login.html';
-            }
-        } else if (response.status === 401) {
-            console.log('401 Unauthorized - Token may be invalid after container restart');
-            alert('会话已过期，请重新登录（可能是服务重启导致）');
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userInfo');
-            window.location.href = '/login.html';
-        } else {
-            console.log('Profile API returned status:', response.status);
+        if (!testResponse.ok && testResponse.status === 401) {
+            console.log('Token验证失败，可能已过期');
             localStorage.removeItem('authToken');
             localStorage.removeItem('userInfo');
             window.location.href = '/login.html';
         }
     } catch (error) {
-        console.error('检查登录状态失败:', error);
+        console.error('解析用户信息失败:', error);
         localStorage.removeItem('authToken');
         localStorage.removeItem('userInfo');
         window.location.href = '/login.html';
