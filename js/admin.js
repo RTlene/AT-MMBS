@@ -69,7 +69,10 @@ function loadModuleData(moduleId) {
             loadUsersData();
             break;
         case 'products':
-            loadProductsData();
+            // 先加载分类数据，然后加载商品数据
+            loadCategories().then(() => {
+                loadProductsData();
+            });
             break;
         case 'categories':
             loadCategoriesData();
@@ -102,6 +105,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 绑定事件监听器
     bindEventListeners();
+    
+    // 加载分类数据（供其他模块使用）
+    loadCategories();
     
     // 默认显示仪表盘
     showModule('dashboard');
