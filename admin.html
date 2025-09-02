@@ -1206,6 +1206,15 @@
                 <textarea class="form-control" id="categoryDescription" rows="3" placeholder="请输入分类描述"></textarea>
             </div>
             <div class="form-group">
+                <label>排序</label>
+                <input type="number" class="form-control" id="categorySort" value="0" placeholder="数字越小越靠前">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="categoryStatus" checked> 启用分类
+                </label>
+            </div>
+            <div class="form-group">
                 <button class="btn btn-success" onclick="saveCategory()">保存</button>
                 <button class="btn btn-secondary" onclick="closeModal('addCategoryModal')">取消</button>
             </div>
@@ -1232,6 +1241,15 @@
             <div class="form-group">
                 <label>分类描述</label>
                 <textarea class="form-control" id="editCategoryDescription" rows="3" placeholder="请输入分类描述"></textarea>
+            </div>
+            <div class="form-group">
+                <label>排序</label>
+                <input type="number" class="form-control" id="editCategorySort" value="0" placeholder="数字越小越靠前">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="editCategoryStatus" checked> 启用分类
+                </label>
             </div>
             <div class="form-group">
                 <input type="hidden" id="editCategoryId">
@@ -1509,6 +1527,40 @@
             document.getElementById('deleteProductName').textContent = productName;
             document.getElementById('deleteProductId').textContent = productId;
             showModal('deleteProductModal');
+        }
+        
+        // 富文本编辑器相关函数
+        function formatText(command, value = null) {
+            document.execCommand(command, false, value);
+        }
+        
+        function insertImage() {
+            // 触发隐藏的文件输入框
+            const isEditMode = document.getElementById('editProductModal').style.display === 'block';
+            const fileInput = isEditMode ? 
+                document.getElementById('editRichTextImageUpload') : 
+                document.getElementById('richTextImageUpload');
+            
+            if (fileInput) {
+                fileInput.click();
+            }
+        }
+        
+        function insertLink() {
+            const url = prompt('请输入链接地址：');
+            if (url) {
+                formatText('createLink', url);
+            }
+        }
+        
+        function handleRichTextImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    formatText('insertImage', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
         }
     </script>
 </body>
