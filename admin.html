@@ -238,6 +238,20 @@
         .editor-toolbar .btn {
             padding: 0.25rem 0.5rem;
             font-size: 0.875rem;
+            background-color: white;
+            border: 1px solid #ced4da;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .editor-toolbar .btn:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+            transform: translateY(-1px);
+        }
+        
+        .editor-toolbar .btn:active {
+            transform: translateY(0);
         }
         
         .editor-content {
@@ -259,6 +273,62 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+        }
+        
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .image-preview-item .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-preview-item .remove-btn:hover {
+            background: rgba(255, 0, 0, 0.9);
+        }
+        
+        .editor-content {
+            min-height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            background: white;
+        }
+        
+        .editor-content:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+        
+        .editor-content[contenteditable=true]:empty:before {
+            content: attr(placeholder);
+            color: #999;
         }
         
         .image-preview {
@@ -1175,7 +1245,7 @@
              </div>
              <div class="form-group">
                  <label>商品图片</label>
-                 <input type="file" class="form-control" id="productImage" accept="image/*" multiple>
+                 <input type="file" class="form-control" id="productImage" accept="image/*" multiple onchange="previewProductImages(this)">
                  <small class="form-text text-muted">支持 JPG、PNG、GIF 格式，最多6张图片</small>
                  <div id="productImagePreview" class="image-preview-container"></div>
              </div>
@@ -1239,7 +1309,7 @@
              </div>
              <div class="form-group">
                  <label>添加新图片</label>
-                 <input type="file" class="form-control" id="editProductImage" accept="image/*" multiple>
+                 <input type="file" class="form-control" id="editProductImage" accept="image/*" multiple onchange="previewEditProductImages(this)">
                  <small class="form-text text-muted">支持 JPG、PNG、GIF 格式，最多6张图片</small>
                  <div id="editProductImagePreview" class="image-preview-container"></div>
              </div>
@@ -1651,6 +1721,148 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
+        
+        // 图片预览数组
+        let productImages = [];
+        let editProductImages = [];
+        
+        // 预览商品图片
+        function previewProductImages(input) {
+            const previewContainer = document.getElementById('productImagePreview');
+            previewContainer.innerHTML = '';
+            productImages = [];
+            
+            if (input.files && input.files.length > 0) {
+                const maxImages = 6;
+                const filesToPreview = Math.min(input.files.length, maxImages);
+                
+                for (let i = 0; i < filesToPreview; i++) {
+                    const file = input.files[i];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        productImages.push(e.target.result);
+                        
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'image-preview-item';
+                        previewItem.innerHTML = `
+                            <img src="${e.target.result}" alt="预览图片${i + 1}">
+                            <button type="button" class="remove-btn" onclick="removeProductImage(${i})">×</button>
+                        `;
+                        previewContainer.appendChild(previewItem);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+                
+                if (input.files.length > maxImages) {
+                    showWarning(`只能上传最多${maxImages}张图片，已选择前${maxImages}张`);
+                }
+            }
+        }
+        
+        // 预览编辑商品图片
+        function previewEditProductImages(input) {
+            const previewContainer = document.getElementById('editProductImagePreview');
+            previewContainer.innerHTML = '';
+            editProductImages = [];
+            
+            if (input.files && input.files.length > 0) {
+                const maxImages = 6;
+                const filesToPreview = Math.min(input.files.length, maxImages);
+                
+                for (let i = 0; i < filesToPreview; i++) {
+                    const file = input.files[i];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        editProductImages.push(e.target.result);
+                        
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'image-preview-item';
+                        previewItem.innerHTML = `
+                            <img src="${e.target.result}" alt="预览图片${i + 1}">
+                            <button type="button" class="remove-btn" onclick="removeEditProductImage(${i})">×</button>
+                        `;
+                        previewContainer.appendChild(previewItem);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+                
+                if (input.files.length > maxImages) {
+                    showWarning(`只能上传最多${maxImages}张图片，已选择前${maxImages}张`);
+                }
+            }
+        }
+        
+        // 移除商品图片
+        function removeProductImage(index) {
+            productImages.splice(index, 1);
+            refreshProductImagePreview();
+        }
+        
+        // 移除编辑商品图片
+        function removeEditProductImage(index) {
+            editProductImages.splice(index, 1);
+            refreshEditProductImagePreview();
+        }
+        
+        // 刷新商品图片预览
+        function refreshProductImagePreview() {
+            const previewContainer = document.getElementById('productImagePreview');
+            previewContainer.innerHTML = '';
+            
+            productImages.forEach((imgSrc, index) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'image-preview-item';
+                previewItem.innerHTML = `
+                    <img src="${imgSrc}" alt="预览图片${index + 1}">
+                    <button type="button" class="remove-btn" onclick="removeProductImage(${index})">×</button>
+                `;
+                previewContainer.appendChild(previewItem);
+            });
+        }
+        
+        // 刷新编辑商品图片预览
+        function refreshEditProductImagePreview() {
+            const previewContainer = document.getElementById('editProductImagePreview');
+            previewContainer.innerHTML = '';
+            
+            editProductImages.forEach((imgSrc, index) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'image-preview-item';
+                previewItem.innerHTML = `
+                    <img src="${imgSrc}" alt="预览图片${index + 1}">
+                    <button type="button" class="remove-btn" onclick="removeEditProductImage(${index})">×</button>
+                `;
+                previewContainer.appendChild(previewItem);
+            });
+        }
+        
+        // 确保富文本编辑器的contenteditable元素正确初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const editorElements = document.querySelectorAll('.editor-content');
+            editorElements.forEach(element => {
+                // 确保contenteditable属性存在
+                if (!element.hasAttribute('contenteditable')) {
+                    element.setAttribute('contenteditable', 'true');
+                }
+                
+                // 处理占位符
+                element.addEventListener('focus', function() {
+                    if (this.textContent.trim() === '') {
+                        this.innerHTML = '';
+                    }
+                });
+                
+                element.addEventListener('blur', function() {
+                    if (this.textContent.trim() === '') {
+                        this.innerHTML = '';
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
