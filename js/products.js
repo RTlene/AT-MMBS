@@ -56,22 +56,47 @@ function displayProducts(products) {
     products.forEach(product => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${product.name || '未命名'}</td>
-            <td>${getCategoryName(product.category) || '未知分类'}</td>
-            <td>¥${product.price || 0}</td>
-            <td>${product.kucun || 0}</td>
+            <td style="font-weight: 500;">${product.name || '未命名'}</td>
             <td>
-                <span class="badge ${product.status === 1 ? 'bg-success' : 'bg-secondary'}">
+                <span class="badge bg-info" style="padding: 0.3rem 0.6rem;">
+                    ${getCategoryName(product.category) || '未知分类'}
+                </span>
+            </td>
+            <td style="font-weight: 500; color: #e74c3c;">¥${(product.price || 0).toFixed(2)}</td>
+            <td style="text-align: center;">
+                <span style="font-weight: 500; color: ${product.kucun > 10 ? '#27ae60' : '#e74c3c'};">
+                    ${product.kucun || 0}
+                </span>
+            </td>
+            <td>
+                <span class="badge ${product.status === 1 ? 'bg-success' : 'bg-secondary'}" style="padding: 0.3rem 0.6rem;">
                     ${product.status === 1 ? '上架' : '下架'}
                 </span>
             </td>
-            <td>${product.create_time ? new Date(product.create_time).toLocaleDateString() : '未知'}</td>
+            <td style="color: #666; font-size: 0.9em;">
+                ${product.create_time ? new Date(product.create_time).toLocaleString('zh-CN', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : '未知'}
+            </td>
             <td>
-                <button class="btn btn-sm btn-primary" onclick="editProduct('${product.id}')">编辑</button>
-                <button class="btn btn-sm btn-warning" onclick="toggleProductStatus('${product.id}')">
-                    ${product.status === 1 ? '下架' : '上架'}
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="showDeleteProductModal('${product.id}', '${escapeHtml(product.name || product.productName || '未知商品')}')">删除</button>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-primary" onclick="editProduct('${product.id}')"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        编辑
+                    </button>
+                    <button class="btn btn-sm btn-warning" onclick="toggleProductStatus('${product.id}')"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        ${product.status === 1 ? '下架' : '上架'}
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="showDeleteProductModal('${product.id}', '${escapeHtml(product.name || product.productName || '未知商品')}')"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        删除
+                    </button>
+                </div>
             </td>
         `;
         tbody.appendChild(row);

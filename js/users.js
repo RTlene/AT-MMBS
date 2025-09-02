@@ -31,25 +31,55 @@ function displayUsers(users) {
     
     tbody.innerHTML = '';
     
+    // 角色映射
+    const roleMap = {
+        'user': { text: '普通用户', class: 'bg-info' },
+        'admin': { text: '管理员', class: 'bg-primary' },
+        'superadmin': { text: '超级管理员', class: 'bg-danger' }
+    };
+    
     users.forEach(user => {
         const row = document.createElement('tr');
+        const roleInfo = roleMap[user.role] || { text: user.role || '用户', class: 'bg-secondary' };
+        
         row.innerHTML = `
-            <td>${user.username || ''}</td>
-            <td>${user.email || ''}</td>
-            <td>${user.phone || ''}</td>
-            <td>${user.role || 'user'}</td>
+            <td style="font-weight: 500;">${user.username || ''}</td>
+            <td style="color: #666; font-size: 0.9em;">${user.email || '-'}</td>
+            <td style="color: #666; font-size: 0.9em;">${user.phone || '-'}</td>
             <td>
-                <span class="badge ${user.status === 1 ? 'bg-success' : 'bg-secondary'}">
+                <span class="badge ${roleInfo.class}" style="padding: 0.3rem 0.6rem;">
+                    ${roleInfo.text}
+                </span>
+            </td>
+            <td>
+                <span class="badge ${user.status === 1 ? 'bg-success' : 'bg-secondary'}" style="padding: 0.3rem 0.6rem;">
                     ${user.status === 1 ? '启用' : '禁用'}
                 </span>
             </td>
-            <td>${user.create_time ? new Date(user.create_time).toLocaleDateString() : '未知'}</td>
+            <td style="color: #666; font-size: 0.9em;">
+                ${user.create_time ? new Date(user.create_time).toLocaleString('zh-CN', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : '未知'}
+            </td>
             <td>
-                <button class="btn btn-sm btn-primary" onclick="editUser('${user.id}')">编辑</button>
-                <button class="btn btn-sm btn-warning" onclick="toggleUserStatus('${user.id}')">
-                    ${user.status === 1 ? '禁用' : '启用'}
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')">删除</button>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-primary" onclick="editUser('${user.id}')" 
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        编辑
+                    </button>
+                    <button class="btn btn-sm btn-warning" onclick="toggleUserStatus('${user.id}')"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        ${user.status === 1 ? '禁用' : '启用'}
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        删除
+                    </button>
+                </div>
             </td>
         `;
         tbody.appendChild(row);
