@@ -202,10 +202,13 @@ function clearProductForm() {
     document.getElementById('productName').value = '';
     document.getElementById('productCategory').value = '';
     document.getElementById('productPrice').value = '';
-    document.getElementById('productKucun').value = '';
+    document.getElementById('productStock').value = '';
+    document.getElementById('productStatus').value = '1';
     document.getElementById('productDescriptionContent').innerHTML = '';
-    document.getElementById('productImages').innerHTML = '';
+    document.getElementById('productImagePreview').innerHTML = '';
+    document.getElementById('productImage').value = '';
     uploadedImages = [];
+    productImages = [];
     currentProductId = null;
     
     // 重置富文本编辑器
