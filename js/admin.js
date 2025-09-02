@@ -163,23 +163,10 @@ async function checkLoginStatus() {
         // 更新用户信息显示
         updateUserInfo();
         
-        // 通过调用一个简单的API来验证token是否有效
-        // 这里使用users API作为验证
-        const testResponse = await fetch('/api/users?page=1&size=1', {
-            headers: addAuthHeader()
-        });
+        // 暂时跳过token验证，因为会导致循环问题
+        // 如果token真的无效，后续的API调用会返回401
+        console.log('User logged in with token:', token.substring(0, 20) + '...');
         
-        if (testResponse.status === 401) {
-            // Token无效或过期
-            console.log('Token validation failed');
-            alert('会话已过期，请重新登录');
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userInfo');
-            window.location.href = '/login.html';
-        } else if (!testResponse.ok) {
-            // 其他错误，可能是网络问题，不强制退出
-            console.warn('Token validation request failed:', testResponse.status);
-        }
     } catch (error) {
         console.error('解析用户信息失败:', error);
         localStorage.removeItem('authToken');

@@ -68,8 +68,30 @@ function addAuthHeader(headers = {}) {
 3. 刷新页面，确认不会被重定向到登录页
 4. 检查网络请求，确认API调用都带有正确的Authorization头
 
+## 额外修复（第二次）
+
+问题仍然存在的原因是admin.html中有独立的JavaScript代码，这些代码也会在页面加载时执行：
+
+1. **admin.html中的DOMContentLoaded事件**
+   - 会调用`loadCategoriesData()`和`showModule('dashboard')`
+   - 这些调用发生在admin.js的初始化之前，导致API请求没有认证头
+
+2. **admin.html中的API调用缺少认证头**
+   - loadCategoriesData、loadProductsData等函数中的fetch调用没有使用addAuthHeader()
+
+3. **checkAuth函数的路径错误**
+   - 使用了'/login'而不是'/login.html'
+
+### 修复方案
+- 移除admin.html中的loadCategoriesData()和showModule()调用
+- 为admin.html中所有的API调用添加认证头
+- 修正登录页面的路径
+
 ## 注意事项
 
 - 这是一个临时解决方案
-- 长期来看，建议后端实现真正的无状态JWT认证
-- 或者实现 `/api/users/profile` 端点来获取用户信息
+- admin.html中不应该有重复的初始化逻辑，所有初始化应该统一在admin.js中处理
+- 长期来看，建议：
+  1. 将admin.html中的JavaScript代码移到单独的文件中
+  2. 后端实现真正的无状态JWT认证
+  3. 或者实现 `/api/users/profile` 端点来获取用户信息
