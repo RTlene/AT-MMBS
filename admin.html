@@ -331,6 +331,22 @@
             color: #999;
         }
         
+        /* 富文本编辑器中的图片自适应 */
+        .editor-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .editor-content img:hover {
+            border-color: #007bff;
+            box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+        }
+        
         .image-preview {
             position: relative;
             width: 80px;
@@ -1602,6 +1618,12 @@
                 if (modalId.includes('add')) {
                     const form = modal.querySelector('form');
                     if (form) form.reset();
+                }
+                // 如果是商品相关的模态框，加载分类
+                if (modalId === 'addProductModal' || modalId === 'editProductModal') {
+                    if (typeof loadCategoriesForProducts === 'function') {
+                        loadCategoriesForProducts();
+                    }
                 }
             }
         }
