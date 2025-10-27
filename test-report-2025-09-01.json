@@ -1,0 +1,516 @@
+{
+  "summary": {
+    "total": 72,
+    "passed": 71,
+    "failed": 1,
+    "warnings": 0,
+    "successRate": "98.61%"
+  },
+  "details": [
+    {
+      "timestamp": "2025-09-01T10:41:31.148Z",
+      "module": "文件检查",
+      "test": "admin.html",
+      "status": "PASS",
+      "message": "文件存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.148Z",
+      "module": "文件检查",
+      "test": "login.html",
+      "status": "PASS",
+      "message": "文件存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.148Z",
+      "module": "文件检查",
+      "test": "js/admin.js",
+      "status": "PASS",
+      "message": "文件存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.148Z",
+      "module": "文件检查",
+      "test": "js/products.js",
+      "status": "PASS",
+      "message": "文件存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.148Z",
+      "module": "文件检查",
+      "test": "js/users.js",
+      "status": "PASS",
+      "message": "文件存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.148Z",
+      "module": "文件检查",
+      "test": "js/categories.js",
+      "status": "PASS",
+      "message": "文件存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.148Z",
+      "module": "文件检查",
+      "test": "js/members.js",
+      "status": "PASS",
+      "message": "文件存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "文件检查",
+      "test": "js/orders.js",
+      "status": "PASS",
+      "message": "文件存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "文件检查",
+      "test": "js/payments.js",
+      "status": "PASS",
+      "message": "文件存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "文件检查",
+      "test": "js/dashboard.js",
+      "status": "PASS",
+      "message": "文件存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/admin.js - console.log调用",
+      "status": "PASS",
+      "message": "找到 1 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/admin.js - 函数定义",
+      "status": "PASS",
+      "message": "找到 9 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/admin.js - 异步函数",
+      "status": "PASS",
+      "message": "找到 2 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/admin.js - try语句",
+      "status": "PASS",
+      "message": "找到 2 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/admin.js - catch语句",
+      "status": "PASS",
+      "message": "找到 2 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/products.js - console.log调用",
+      "status": "PASS",
+      "message": "找到 9 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/products.js - 函数定义",
+      "status": "PASS",
+      "message": "找到 21 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/products.js - 异步函数",
+      "status": "PASS",
+      "message": "找到 8 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/products.js - try语句",
+      "status": "PASS",
+      "message": "找到 8 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/products.js - catch语句",
+      "status": "PASS",
+      "message": "找到 8 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/users.js - 函数定义",
+      "status": "PASS",
+      "message": "找到 14 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/users.js - 异步函数",
+      "status": "PASS",
+      "message": "找到 6 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/users.js - try语句",
+      "status": "PASS",
+      "message": "找到 6 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/users.js - catch语句",
+      "status": "PASS",
+      "message": "找到 6 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/categories.js - 函数定义",
+      "status": "PASS",
+      "message": "找到 11 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/categories.js - 异步函数",
+      "status": "PASS",
+      "message": "找到 5 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/categories.js - try语句",
+      "status": "PASS",
+      "message": "找到 5 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.149Z",
+      "module": "语法检查",
+      "test": "js/categories.js - catch语句",
+      "status": "PASS",
+      "message": "找到 5 个"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/admin.js - showMessage",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/admin.js - addAuthHeader",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/admin.js - checkLoginStatus",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/products.js - loadProductsData",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/products.js - saveProduct",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/products.js - deleteProduct",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/products.js - escapeHtml",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/users.js - loadUsersData",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/users.js - saveUser",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/users.js - editUser",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/users.js - deleteUser",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/users.js - toggleUserStatus",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/categories.js - loadCategoriesData",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/categories.js - saveCategory",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/categories.js - editCategory",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.150Z",
+      "module": "函数定义",
+      "test": "js/categories.js - deleteCategory",
+      "status": "PASS",
+      "message": "函数已定义"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "HTML结构",
+      "test": "admin.html - 消息容器",
+      "status": "PASS",
+      "message": "元素存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "HTML结构",
+      "test": "admin.html - admin.js引用",
+      "status": "PASS",
+      "message": "元素存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "HTML结构",
+      "test": "admin.html - showModal函数调用",
+      "status": "PASS",
+      "message": "元素存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "HTML结构",
+      "test": "admin.html - closeModal函数调用",
+      "status": "PASS",
+      "message": "元素存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "HTML结构",
+      "test": "login.html - 消息容器",
+      "status": "PASS",
+      "message": "元素存在"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "HTML结构",
+      "test": "login.html - admin.js引用",
+      "status": "FAIL",
+      "message": "元素缺失"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/users.js - API调用",
+      "status": "PASS",
+      "message": "6 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/users.js - 认证头部",
+      "status": "PASS",
+      "message": "6 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/users.js - 响应状态检查",
+      "status": "PASS",
+      "message": "6 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/users.js - JSON解析",
+      "status": "PASS",
+      "message": "6 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/users.js - 消息提示",
+      "status": "PASS",
+      "message": "24 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/products.js - API调用",
+      "status": "PASS",
+      "message": "8 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/products.js - 认证头部",
+      "status": "PASS",
+      "message": "7 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/products.js - 响应状态检查",
+      "status": "PASS",
+      "message": "6 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/products.js - JSON解析",
+      "status": "PASS",
+      "message": "6 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/products.js - 消息提示",
+      "status": "PASS",
+      "message": "27 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/categories.js - API调用",
+      "status": "PASS",
+      "message": "5 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/categories.js - 认证头部",
+      "status": "PASS",
+      "message": "5 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/categories.js - 响应状态检查",
+      "status": "PASS",
+      "message": "5 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/categories.js - JSON解析",
+      "status": "PASS",
+      "message": "5 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.151Z",
+      "module": "API模式",
+      "test": "js/categories.js - 消息提示",
+      "status": "PASS",
+      "message": "20 处使用"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.152Z",
+      "module": "错误处理",
+      "test": "js/users.js - try-catch",
+      "status": "PASS",
+      "message": "6 个try-catch块"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.152Z",
+      "module": "错误处理",
+      "test": "js/users.js - 错误日志",
+      "status": "PASS",
+      "message": "6 处错误日志"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.152Z",
+      "module": "错误处理",
+      "test": "js/products.js - try-catch",
+      "status": "PASS",
+      "message": "8 个try-catch块"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.152Z",
+      "module": "错误处理",
+      "test": "js/products.js - 错误日志",
+      "status": "PASS",
+      "message": "8 处错误日志"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.152Z",
+      "module": "错误处理",
+      "test": "js/categories.js - try-catch",
+      "status": "PASS",
+      "message": "5 个try-catch块"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.152Z",
+      "module": "错误处理",
+      "test": "js/categories.js - 错误日志",
+      "status": "PASS",
+      "message": "5 处错误日志"
+    },
+    {
+      "timestamp": "2025-09-01T10:41:31.153Z",
+      "module": "安全性",
+      "test": "HTML转义函数",
+      "status": "PASS",
+      "message": "escapeHtml函数存在"
+    }
+  ],
+  "timestamp": "2025-09-01T10:41:31.154Z"
+}

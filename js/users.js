@@ -31,25 +31,44 @@ function displayUsers(users) {
     
     tbody.innerHTML = '';
     
+    // 角色映射
+    const roleMap = {
+        'user': { text: '普通用户', class: 'bg-info' },
+        'admin': { text: '管理员', class: 'bg-primary' },
+        'superadmin': { text: '超级管理员', class: 'bg-danger' }
+    };
+    
     users.forEach(user => {
         const row = document.createElement('tr');
+        const roleInfo = roleMap[user.role] || { text: user.role || '用户', class: 'bg-secondary' };
+        
         row.innerHTML = `
-            <td>${user.username || ''}</td>
-            <td>${user.email || ''}</td>
-            <td>${user.phone || ''}</td>
-            <td>${user.role || 'user'}</td>
+            <td style="font-weight: 500;">${user.username || ''}</td>
             <td>
-                <span class="badge ${user.status === 1 ? 'bg-success' : 'bg-secondary'}">
-                    ${user.status === 1 ? '启用' : '禁用'}
+                <span class="badge ${roleInfo.class}" style="padding: 0.3rem 0.6rem;">
+                    ${roleInfo.text}
                 </span>
             </td>
-            <td>${user.create_time ? new Date(user.create_time).toLocaleDateString() : '未知'}</td>
+            <td style="color: #666; font-size: 0.9em;">
+                ${user.create_at ? new Date(user.create_at).toLocaleString('zh-CN', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : '未知'}
+            </td>
             <td>
-                <button class="btn btn-sm btn-primary" onclick="editUser('${user.id}')">编辑</button>
-                <button class="btn btn-sm btn-warning" onclick="toggleUserStatus('${user.id}')">
-                    ${user.status === 1 ? '禁用' : '启用'}
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')">删除</button>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-primary" onclick="editUser('${user.id}')" 
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        编辑
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        删除
+                    </button>
+                </div>
             </td>
         `;
         tbody.appendChild(row);
@@ -99,11 +118,8 @@ function changeUserPage(page) {
 // 保存用户
 async function saveUser() {
     const username = document.getElementById('userUsername').value.trim();
-    const email = document.getElementById('userEmail').value.trim();
-    const phone = document.getElementById('userPhone').value.trim();
     const password = document.getElementById('userPassword').value;
     const role = document.getElementById('userRole').value;
-    const status = document.getElementById('userStatus').checked ? 1 : 0;
     
     if (!username || !password) {
         showMessage('请填写用户名和密码', 'warning');
@@ -113,11 +129,8 @@ async function saveUser() {
     try {
         const userData = {
             username,
-            email,
-            phone,
             password,
-            role,
-            status
+            role
         };
         
         const response = await fetch('/api/users', {
@@ -176,20 +189,14 @@ async function editUser(userId) {
 function fillEditUserForm(user) {
     document.getElementById('editUserId').value = user.id;
     document.getElementById('editUserUsername').value = user.username || '';
-    document.getElementById('editUserEmail').value = user.email || '';
-    document.getElementById('editUserPhone').value = user.phone || '';
     document.getElementById('editUserRole').value = user.role || 'user';
-    document.getElementById('editUserStatus').checked = user.status === 1;
 }
 
 // 更新用户
 async function updateUser() {
     const id = document.getElementById('editUserId').value;
     const username = document.getElementById('editUserUsername').value.trim();
-    const email = document.getElementById('editUserEmail').value.trim();
-    const phone = document.getElementById('editUserPhone').value.trim();
     const role = document.getElementById('editUserRole').value;
-    const status = document.getElementById('editUserStatus').checked ? 1 : 0;
     
     if (!username) {
         showMessage('请填写用户名', 'warning');
@@ -199,10 +206,7 @@ async function updateUser() {
     try {
         const userData = {
             username,
-            email,
-            phone,
-            role,
-            status
+            role
         };
         
         const response = await fetch(`/api/users/${id}`, {
@@ -293,11 +297,8 @@ async function toggleUserStatus(userId) {
 // 清空用户表单
 function clearUserForm() {
     document.getElementById('userUsername').value = '';
-    document.getElementById('userEmail').value = '';
-    document.getElementById('userPhone').value = '';
     document.getElementById('userPassword').value = '';
     document.getElementById('userRole').value = 'user';
-    document.getElementById('userStatus').checked = true;
 }
 
 // 打开添加用户模态框

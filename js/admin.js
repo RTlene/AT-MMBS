@@ -6,28 +6,58 @@ let pageSize = 10;
 
 // 工具函数
 function addAuthHeader(headers = {}) {
-    if (currentUser && currentUser.token) {
+    // 优先使用localStorage中的token
+    const token = localStorage.getItem('authToken');
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    } else if (currentUser && currentUser.token) {
         headers['Authorization'] = `Bearer ${currentUser.token}`;
     }
     return headers;
 }
 
 function showMessage(message, type = 'info') {
+    // 创建消息元素
     const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    alertDiv.style.cssText = `
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        position: relative;
+        animation: slideIn 0.3s ease;
     `;
     
-    const container = document.querySelector('.container-fluid');
-    container.insertBefore(alertDiv, container.firstChild);
+    // 根据类型设置颜色
+    const colors = {
+        'info': { bg: '#d1ecf1', border: '#bee5eb', text: '#0c5460' },
+        'success': { bg: '#d4edda', border: '#c3e6cb', text: '#155724' },
+        'warning': { bg: '#fff3cd', border: '#ffeeba', text: '#856404' },
+        'danger': { bg: '#f8d7da', border: '#f5c6cb', text: '#721c24' }
+    };
     
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 5000);
+    const color = colors[type] || colors['info'];
+    alertDiv.style.backgroundColor = color.bg;
+    alertDiv.style.border = `1px solid ${color.border}`;
+    alertDiv.style.color = color.text;
+    
+    alertDiv.innerHTML = `
+        ${message}
+        <button onclick="this.parentElement.remove()" style="position: absolute; right: 10px; top: 10px; background: none; border: none; font-size: 20px; cursor: pointer; color: ${color.text};">&times;</button>
+    `;
+    
+    // 添加到消息容器
+    const container = document.getElementById('messageContainer');
+    if (container) {
+        container.appendChild(alertDiv);
+        
+        // 5秒后自动消失
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => alertDiv.remove(), 300);
+            }
+        }, 5000);
+    }
 }
 
 // 模块显示管理
@@ -125,47 +155,38 @@ function bindEventListeners() {
 // 登录状态检查
 async function checkLoginStatus() {
     const token = localStorage.getItem('authToken');
-    if (!token) {
+    const userInfo = localStorage.getItem('userInfo');
+    
+    if (!token || !userInfo) {
         window.location.href = '/login.html';
         return;
     }
     
-    // 设置currentUser对象以便addAuthHeader可以使用
-    currentUser = {
-        token: token,
-        info: JSON.parse(localStorage.getItem('userInfo') || '{}')
-    };
-    
     try {
-        const response = await fetch('/api/users/profile', {
+        // 使用localStorage中保存的用户信息
+        const user = JSON.parse(userInfo);
+        currentUser = {
+            token: token,
+            username: user.username,
+            ...user
+        };
+        
+        updateUserInfo();
+        
+        // 可选：验证token是否仍然有效
+        // 通过调用一个简单的API来测试
+        const testResponse = await fetch('/api/users', {
             headers: addAuthHeader()
         });
         
-        if (response.ok) {
-            const result = await response.json();
-            if (result.code === 0) {
-                currentUser = { ...currentUser, ...result.data };
-                updateUserInfo();
-            } else {
-                console.log('Profile API returned error code:', result.code);
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userInfo');
-                window.location.href = '/login.html';
-            }
-        } else if (response.status === 401) {
-            console.log('401 Unauthorized - Token may be invalid after container restart');
-            alert('会话已过期，请重新登录（可能是服务重启导致）');
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userInfo');
-            window.location.href = '/login.html';
-        } else {
-            console.log('Profile API returned status:', response.status);
+        if (!testResponse.ok && testResponse.status === 401) {
+            console.log('Token验证失败，可能已过期');
             localStorage.removeItem('authToken');
             localStorage.removeItem('userInfo');
             window.location.href = '/login.html';
         }
     } catch (error) {
-        console.error('检查登录状态失败:', error);
+        console.error('解析用户信息失败:', error);
         localStorage.removeItem('authToken');
         localStorage.removeItem('userInfo');
         window.location.href = '/login.html';

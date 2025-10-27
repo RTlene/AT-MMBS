@@ -5,7 +5,7 @@ import (
 	"wxcloudrun-golang/db/model"
 )
 
-const tableName = "Counters"
+const tableName = "counters"
 
 // CounterInterfaceImp 计数器接口实现
 type CounterInterfaceImp struct{}

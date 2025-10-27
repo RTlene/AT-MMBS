@@ -1,13 +1,76 @@
 // 商品管理JavaScript文件
 
+// HTML转义函数
+const escapeHtml = (str) => {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, function(match) {
+        const escape = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return escape[match];
+    });
+};
+
 // 商品相关变量
 let currentProductId = null;
 let uploadedImages = [];
 let currentEditor = null;
 
+// 加载分类到下拉框
+async function loadCategoriesForProducts() {
+    try {
+        const response = await fetch('/api/categories', {
+            headers: addAuthHeader()
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            if (result.code === 0 && result.data) {
+                const productCategorySelect = document.getElementById('productCategory');
+                const editProductCategorySelect = document.getElementById('editProductCategory');
+                const categoryFilterSelect = document.getElementById('productCategoryFilter');
+                
+                // 清空现有选项
+                if (productCategorySelect) {
+                    productCategorySelect.innerHTML = '<option value="">请选择分类</option>';
+                }
+                if (editProductCategorySelect) {
+                    editProductCategorySelect.innerHTML = '<option value="">请选择分类</option>';
+                }
+                if (categoryFilterSelect) {
+                    categoryFilterSelect.innerHTML = '<option value="">全部分类</option>';
+                }
+                
+                // 添加分类选项
+                result.data.forEach(category => {
+                    const option = `<option value="${category.id}">${escapeHtml(category.name)}</option>`;
+                    if (productCategorySelect) {
+                        productCategorySelect.innerHTML += option;
+                    }
+                    if (editProductCategorySelect) {
+                        editProductCategorySelect.innerHTML += option;
+                    }
+                    if (categoryFilterSelect) {
+                        categoryFilterSelect.innerHTML += option;
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.error('加载分类失败:', error);
+    }
+}
+
 // 加载商品数据
 async function loadProductsData() {
     try {
+        // 先加载分类
+        await loadCategoriesForProducts();
+        
         const response = await fetch(`/api/products?page=${currentPage}&size=${pageSize}`, {
             headers: addAuthHeader()
         });
@@ -41,22 +104,47 @@ function displayProducts(products) {
     products.forEach(product => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${product.name || '未命名'}</td>
-            <td>${getCategoryName(product.category) || '未知分类'}</td>
-            <td>¥${product.price || 0}</td>
-            <td>${product.kucun || 0}</td>
+            <td style="font-weight: 500;">${product.name || '未命名'}</td>
             <td>
-                <span class="badge ${product.status === 1 ? 'bg-success' : 'bg-secondary'}">
+                <span class="badge bg-info" style="padding: 0.3rem 0.6rem;">
+                    ${getCategoryName(product.category) || '未知分类'}
+                </span>
+            </td>
+            <td style="font-weight: 500; color: #e74c3c;">¥${(product.price || 0).toFixed(2)}</td>
+            <td style="text-align: center;">
+                <span style="font-weight: 500; color: ${product.stock > 10 ? '#27ae60' : '#e74c3c'};">
+                    ${product.stock || 0}
+                </span>
+            </td>
+            <td>
+                <span class="badge ${product.status === 1 ? 'bg-success' : 'bg-secondary'}" style="padding: 0.3rem 0.6rem;">
                     ${product.status === 1 ? '上架' : '下架'}
                 </span>
             </td>
-            <td>${product.create_time ? new Date(product.create_time).toLocaleDateString() : '未知'}</td>
+            <td style="color: #666; font-size: 0.9em;">
+                ${product.create_time ? new Date(product.create_time).toLocaleString('zh-CN', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : '未知'}
+            </td>
             <td>
-                <button class="btn btn-sm btn-primary" onclick="editProduct('${product.id}')">编辑</button>
-                <button class="btn btn-sm btn-warning" onclick="toggleProductStatus('${product.id}')">
-                    ${product.status === 1 ? '下架' : '上架'}
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product.id}')">删除</button>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm btn-primary" onclick="editProduct('${product.id}')"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        编辑
+                    </button>
+                    <button class="btn btn-sm btn-warning" onclick="toggleProductStatus('${product.id}')"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        ${product.status === 1 ? '下架' : '上架'}
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="showDeleteProductModal('${product.id}', '${escapeHtml(product.name || product.productName || '未知商品')}')"
+                        style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                        删除
+                    </button>
+                </div>
             </td>
         `;
         tbody.appendChild(row);
@@ -114,10 +202,13 @@ function clearProductForm() {
     document.getElementById('productName').value = '';
     document.getElementById('productCategory').value = '';
     document.getElementById('productPrice').value = '';
-    document.getElementById('productKucun').value = '';
-    document.getElementById('productContent').innerHTML = '';
-    document.getElementById('productImages').innerHTML = '';
+    document.getElementById('productStock').value = '';
+    document.getElementById('productStatus').value = '1';
+    document.getElementById('productDescriptionContent').innerHTML = '';
+    document.getElementById('productImagePreview').innerHTML = '';
+    document.getElementById('productImage').value = '';
     uploadedImages = [];
+    productImages = [];
     currentProductId = null;
     
     // 重置富文本编辑器
@@ -130,7 +221,7 @@ function clearProductForm() {
 function openAddProductModal() {
     clearProductForm();
     document.getElementById('addProductModal').style.display = 'block';
-    currentEditor = document.getElementById('productContent');
+    currentEditor = document.getElementById('productDescriptionContent');
 }
 
 // 关闭添加商品模态框
@@ -144,10 +235,11 @@ async function saveProduct() {
     const name = document.getElementById('productName').value.trim();
     const category = document.getElementById('productCategory').value;
     const price = parseFloat(document.getElementById('productPrice').value);
-    const kucun = parseInt(document.getElementById('productKucun').value);
-    const content = document.getElementById('productContent').innerHTML;
+    const stock = parseInt(document.getElementById('productStock').value);
+    const content = document.getElementById('productDescriptionContent').innerHTML;
+    const status = parseInt(document.getElementById('productStatus').value);
     
-    if (!name || !category || isNaN(price) || isNaN(kucun)) {
+    if (!name || !category || isNaN(price) || isNaN(stock)) {
         showMessage('请填写完整的商品信息', 'warning');
         return;
     }
@@ -160,8 +252,9 @@ async function saveProduct() {
             name,
             category,
             price,
-            kucun,
+            stock,
             content,
+            status,
             tp: imagePaths
         };
         
@@ -224,13 +317,13 @@ function fillEditProductForm(product) {
     document.getElementById('editProductName').value = product.name || '';
     document.getElementById('editProductCategory').value = product.category || '';
     document.getElementById('editProductPrice').value = product.price || '';
-    document.getElementById('editProductKucun').value = product.kucun || '';
-    document.getElementById('editProductContent').innerHTML = product.content || '';
+    document.getElementById('editProductStock').value = product.stock || '';
+    document.getElementById('editProductDescriptionContent').innerHTML = product.content || '';
     
     // 显示现有图片
     displayEditProductImages(product.tp || []);
     
-    currentEditor = document.getElementById('editProductContent');
+    currentEditor = document.getElementById('editProductDescriptionContent');
 }
 
 // 显示编辑表单的图片
@@ -269,10 +362,10 @@ async function updateProduct() {
     const name = document.getElementById('editProductName').value.trim();
     const category = document.getElementById('editProductCategory').value;
     const price = parseFloat(document.getElementById('editProductPrice').value);
-    const kucun = parseInt(document.getElementById('editProductKucun').value);
-    const content = document.getElementById('editProductContent').innerHTML;
+    const stock = parseInt(document.getElementById('editProductStock').value);
+    const content = document.getElementById('editProductDescriptionContent').innerHTML;
     
-    if (!name || !category || isNaN(price) || isNaN(kucun)) {
+    if (!name || !category || isNaN(price) || isNaN(stock)) {
         showMessage('请填写完整的商品信息', 'warning');
         return;
     }
@@ -282,7 +375,7 @@ async function updateProduct() {
             name,
             category,
             price,
-            kucun,
+            stock,
             content,
             tp: uploadedImages
         };
@@ -318,10 +411,6 @@ async function updateProduct() {
 
 // 删除商品
 async function deleteProduct(productId) {
-    if (!confirm('确定要删除这个商品吗？')) {
-        return;
-    }
-    
     try {
         const response = await fetch(`/api/products/${productId}`, {
             method: 'DELETE',
@@ -414,9 +503,9 @@ function closeEditProductModal() {
 
 // 图片上传相关函数
 async function uploadProductImages() {
-    const imageInput = document.getElementById('productImageInput');
+    const imageInput = document.getElementById('productImage');
     if (!imageInput || !imageInput.files || imageInput.files.length === 0) {
-        return uploadedImages;
+        return uploadedImages || [];
     }
     
     const files = Array.from(imageInput.files);

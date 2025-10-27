@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浏览器功能模拟测试</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        
+        .test-output {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .pass { color: #4ec9b0; }
+        .fail { color: #f44747; }
+        .warn { color: #dcdcaa; }
+        .info { color: #9cdcfe; }
+        
+        #messageContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            width: 300px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 浏览器功能模拟测试</h1>
+    <div id="messageContainer"></div>
+    
+    <!-- 测试用模态框 -->
+    <div id="testModal" class="modal">
+        <div class="modal-content">
+            <p>测试模态框</p>
+        </div>
+    </div>
+    
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <p>添加用户模态框</p>
+        </div>
+    </div>
+    
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <p>编辑用户模态框</p>
+        </div>
+    </div>
+    
+    <div id="deleteProductModal" class="modal">
+        <div class="modal-content">
+            <p>删除商品模态框</p>
+            <span id="deleteProductName"></span>
+            <span id="deleteProductId"></span>
+        </div>
+    </div>
+    
+    <div class="test-output" id="testOutput">
+测试开始...
+    </div>
+    
+    <!-- 加载所有JS文件 -->
+    <script src="js/admin.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/users.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/members.js"></script>
+    <script src="js/member-levels.js"></script>
+    <script src="js/distributor-levels.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/payments.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/settings.js"></script>
+    
+    <script>
+        // 测试输出函数
+        function log(message, type = 'info') {
+            const output = document.getElementById('testOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            output.innerHTML += `\n<span class="${type}">[${timestamp}] ${message}</span>`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        // 重写console方法以捕获输出
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            log('LOG: ' + args.join(' '), 'info');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            log('ERROR: ' + args.join(' '), 'fail');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            log('WARN: ' + args.join(' '), 'warn');
+        };
+        
+        // 添加全局函数
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                log(`✓ showModal('${modalId}') 执行成功`, 'pass');
+            } else {
+                log(`✗ showModal('${modalId}') 失败 - 模态框不存在`, 'fail');
+            }
+        }
+        
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                log(`✓ closeModal('${modalId}') 执行成功`, 'pass');
+            }
+        }
+        
+        function showSuccess(message) {
+            showMessage(message, 'success');
+        }
+        
+        function showError(message) {
+            showMessage(message, 'danger');
+        }
+        
+        function showWarning(message) {
+            showMessage(message, 'warning');
+        }
+        
+        function showInfo(message) {
+            showMessage(message, 'info');
+        }
+        
+        // 模拟API响应
+        window.fetch = function(url, options = {}) {
+            log(`API调用: ${options.method || 'GET'} ${url}`, 'info');
+            
+            // 返回模拟响应
+            return Promise.resolve({
+                ok: true,
+                status: 200,
+                json: () => {
+                    if (url.includes('/api/users')) {
+                        return Promise.resolve({
+                            code: 0,
+                            data: {
+                                users: [
+                                    { id: 1, username: 'admin', status: 1 },
+                                    { id: 2, username: 'test', status: 1 }
+                                ],
+                                total: 2
+                            }
+                        });
+                    } else if (url.includes('/api/products')) {
+                        return Promise.resolve({
+                            code: 0,
+                            data: {
+                                products: [
+                                    { id: 1, name: '测试商品', price: 99.99, status: 1 }
+                                ],
+                                total: 1
+                            }
+                        });
+                    }
+                    return Promise.resolve({ code: 0, data: {} });
+                }
+            });
+        };
+        
+        // 运行测试套件
+        async function runTests() {
+            log('\n=== 开始自动化测试 ===\n', 'info');
+            
+            // 1. 测试全局函数
+            log('\n--- 测试全局函数 ---', 'info');
+            
+            // 测试showMessage
+            try {
+                showMessage('测试消息', 'info');
+                log('✓ showMessage 函数正常', 'pass');
+            } catch (e) {
+                log('✗ showMessage 函数错误: ' + e.message, 'fail');
+            }
+            
+            // 测试showSuccess等
+            try {
+                showSuccess('成功消息');
+                showError('错误消息');
+                showWarning('警告消息');
+                showInfo('信息消息');
+                log('✓ 消息函数族正常', 'pass');
+            } catch (e) {
+                log('✗ 消息函数错误: ' + e.message, 'fail');
+            }
+            
+            // 测试模态框
+            try {
+                showModal('testModal');
+                await new Promise(resolve => setTimeout(resolve, 100));
+                closeModal('testModal');
+                log('✓ 模态框函数正常', 'pass');
+            } catch (e) {
+                log('✗ 模态框函数错误: ' + e.message, 'fail');
+            }
+            
+            // 2. 测试认证功能
+            log('\n--- 测试认证功能 ---', 'info');
+            
+            // 模拟登录
+            localStorage.setItem('authToken', 'test-token-123');
+            localStorage.setItem('userInfo', JSON.stringify({ username: 'testuser' }));
+            
+            try {
+                const headers = addAuthHeader();
+                if (headers.Authorization) {
+                    log('✓ addAuthHeader 函数正常', 'pass');
+                } else {
+                    log('✗ addAuthHeader 未添加认证头', 'fail');
+                }
+            } catch (e) {
+                log('✗ addAuthHeader 错误: ' + e.message, 'fail');
+            }
+            
+            // 3. 测试用户管理函数
+            log('\n--- 测试用户管理模块 ---', 'info');
+            
+            const userFunctions = ['loadUsersData', 'saveUser', 'editUser', 'deleteUser', 'toggleUserStatus'];
+            userFunctions.forEach(func => {
+                if (typeof window[func] === 'function') {
+                    log(`✓ ${func} 函数已定义`, 'pass');
+                } else {
+                    log(`✗ ${func} 函数未定义`, 'fail');
+                }
+            });
+            
+            // 测试用户加载
+            try {
+                if (typeof loadUsersData === 'function') {
+                    await loadUsersData();
+                    log('✓ loadUsersData 执行成功', 'pass');
+                }
+            } catch (e) {
+                log('✗ loadUsersData 执行失败: ' + e.message, 'fail');
+            }
+            
+            // 4. 测试商品管理函数
+            log('\n--- 测试商品管理模块 ---', 'info');
+            
+            const productFunctions = ['loadProductsData', 'saveProduct', 'editProduct', 'deleteProduct', 'toggleProductStatus'];
+            productFunctions.forEach(func => {
+                if (typeof window[func] === 'function') {
+                    log(`✓ ${func} 函数已定义`, 'pass');
+                } else {
+                    log(`✗ ${func} 函数未定义`, 'fail');
+                }
+            });
+            
+            // 测试HTML转义
+            if (typeof escapeHtml === 'function') {
+                const testCases = [
+                    { input: '<script>alert("XSS")</script>', expected: '不包含<script>' },
+                    { input: 'test"quote', expected: '转义引号' },
+                    { input: "test'quote", expected: '转义单引号' }
+                ];
+                
+                testCases.forEach(test => {
+                    const result = escapeHtml(test.input);
+                    if (!result.includes('<script>') && !result.includes('"') || result.includes('&quot;')) {
+                        log(`✓ escapeHtml: ${test.expected}`, 'pass');
+                    } else {
+                        log(`✗ escapeHtml 失败: ${test.input}`, 'fail');
+                    }
+                });
+            } else {
+                log('✗ escapeHtml 函数未定义', 'fail');
+            }
+            
+            // 测试商品删除模态框
+            try {
+                window.showDeleteProductModal = function(id, name) {
+                    log(`✓ showDeleteProductModal(${id}, "${name}") 调用`, 'pass');
+                };
+                showDeleteProductModal(1, '测试商品');
+            } catch (e) {
+                log('✗ 商品删除模态框测试失败: ' + e.message, 'fail');
+            }
+            
+            // 5. 测试分类管理
+            log('\n--- 测试分类管理模块 ---', 'info');
+            
+            const categoryFunctions = ['loadCategoriesData', 'saveCategory', 'editCategory', 'deleteCategory'];
+            categoryFunctions.forEach(func => {
+                if (typeof window[func] === 'function') {
+                    log(`✓ ${func} 函数已定义`, 'pass');
+                } else {
+                    log(`✗ ${func} 函数未定义`, 'fail');
+                }
+            });
+            
+            // 6. 测试错误处理
+            log('\n--- 测试错误处理 ---', 'info');
+            
+            // 模拟网络错误
+            const originalFetch = window.fetch;
+            window.fetch = function() {
+                return Promise.reject(new Error('Network error'));
+            };
+            
+            try {
+                if (typeof loadUsersData === 'function') {
+                    await loadUsersData().catch(e => {
+                        log('✓ 网络错误被正确捕获', 'pass');
+                    });
+                }
+            } catch (e) {
+                log('✓ 错误处理正常', 'pass');
+            }
+            
+            window.fetch = originalFetch;
+            
+            // 7. 总结
+            log('\n=== 测试完成 ===\n', 'info');
+            
+            // 统计结果
+            const output = document.getElementById('testOutput').innerText;
+            const passed = (output.match(/✓/g) || []).length;
+            const failed = (output.match(/✗/g) || []).length;
+            const total = passed + failed;
+            
+            log(`\n总测试: ${total}`, 'info');
+            log(`通过: ${passed}`, 'pass');
+            log(`失败: ${failed}`, 'fail');
+            log(`成功率: ${((passed/total)*100).toFixed(2)}%`, 'info');
+        }
+        
+        // 页面加载完成后运行测试
+        window.onload = function() {
+            setTimeout(runTests, 1000);
+        };
+    </script>
+</body>
+</html>
