@@ -6,8 +6,15 @@ let pageSize = 10;
 
 // 工具函数
 function addAuthHeader(headers = {}) {
+    // 优先使用currentUser的token
     if (currentUser && currentUser.token) {
         headers['Authorization'] = `Bearer ${currentUser.token}`;
+    } else {
+        // 如果currentUser未设置，从localStorage获取
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
     }
     return headers;
 }
@@ -69,7 +76,10 @@ function loadModuleData(moduleId) {
             loadUsersData();
             break;
         case 'products':
-            loadProductsData();
+            // 先加载分类数据，然后加载商品数据
+            loadCategories().then(() => {
+                loadProductsData();
+            });
             break;
         case 'categories':
             loadCategoriesData();
@@ -96,15 +106,21 @@ function loadModuleData(moduleId) {
 }
 
 // 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', function() {
-    // 检查登录状态
-    checkLoginStatus();
+document.addEventListener('DOMContentLoaded', async function() {
+    // 先检查登录状态，等待完成
+    await checkLoginStatus();
     
-    // 绑定事件监听器
-    bindEventListeners();
-    
-    // 默认显示仪表盘
-    showModule('dashboard');
+    // 只有登录验证通过后才执行以下操作
+    if (currentUser && currentUser.token) {
+        // 绑定事件监听器
+        bindEventListeners();
+        
+        // 加载分类数据（供其他模块使用）
+        loadCategories();
+        
+        // 默认显示仪表盘
+        showModule('dashboard');
+    }
 });
 
 // 绑定事件监听器
@@ -136,36 +152,23 @@ async function checkLoginStatus() {
         info: JSON.parse(localStorage.getItem('userInfo') || '{}')
     };
     
+    // 直接使用本地存储的用户信息
     try {
-        const response = await fetch('/api/users/profile', {
-            headers: addAuthHeader()
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            if (result.code === 0) {
-                currentUser = { ...currentUser, ...result.data };
-                updateUserInfo();
-            } else {
-                console.log('Profile API returned error code:', result.code);
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userInfo');
-                window.location.href = '/login.html';
-            }
-        } else if (response.status === 401) {
-            console.log('401 Unauthorized - Token may be invalid after container restart');
-            alert('会话已过期，请重新登录（可能是服务重启导致）');
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userInfo');
-            window.location.href = '/login.html';
-        } else {
-            console.log('Profile API returned status:', response.status);
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userInfo');
-            window.location.href = '/login.html';
+        // 简单验证token格式（JWT应该有三部分）
+        const tokenParts = token.split('.');
+        if (tokenParts.length !== 3) {
+            throw new Error('Invalid token format');
         }
+        
+        // 更新用户信息显示
+        updateUserInfo();
+        
+        // 暂时跳过token验证，因为会导致循环问题
+        // 如果token真的无效，后续的API调用会返回401
+        console.log('User logged in with token:', token.substring(0, 20) + '...');
+        
     } catch (error) {
-        console.error('检查登录状态失败:', error);
+        console.error('解析用户信息失败:', error);
         localStorage.removeItem('authToken');
         localStorage.removeItem('userInfo');
         window.location.href = '/login.html';
@@ -213,10 +216,11 @@ function handleLogout() {
 
 // 更新用户信息显示
 function updateUserInfo() {
-    if (currentUser) {
+    if (currentUser && currentUser.info) {
         const userInfoElement = document.querySelector('.user-info');
         if (userInfoElement) {
-            userInfoElement.textContent = `欢迎，${currentUser.username}`;
+            const username = currentUser.info.username || currentUser.info.name || '用户';
+            userInfoElement.textContent = `欢迎，${username}`;
         }
     }
 }

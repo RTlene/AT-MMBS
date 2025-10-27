@@ -4,6 +4,88 @@
 let currentProductId = null;
 let uploadedImages = [];
 let currentEditor = null;
+let categoriesMap = new Map(); // 存储分类数据
+
+// 初始化富文本编辑器样式
+document.addEventListener('DOMContentLoaded', function() {
+    // 添加全局样式规则
+    const style = document.createElement('style');
+    style.textContent = `
+        .editor-content img {
+            max-width: 100% !important;
+            width: auto !important;
+            height: auto !important;
+            display: block !important;
+            margin: 10px auto !important;
+            object-fit: contain !important;
+        }
+        .editor-content {
+            overflow-x: auto;
+            word-wrap: break-word;
+        }
+        .editor-content * {
+            max-width: 100% !important;
+        }
+    `;
+    document.head.appendChild(style);
+});
+
+// 加载分类数据
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/categories', {
+            headers: addAuthHeader()
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            if (result.code === 0 && result.data) {
+                categoriesMap.clear();
+                result.data.forEach(category => {
+                    categoriesMap.set(category.id, category);
+                });
+                
+                // 更新商品表单的分类下拉框
+                updateCategoryDropdowns(result.data);
+                return result.data;
+            }
+        }
+    } catch (error) {
+        console.error('加载分类数据失败:', error);
+    }
+    return [];
+}
+
+// 更新分类下拉框
+function updateCategoryDropdowns(categories) {
+    // 更新添加商品表单的分类下拉框
+    const productCategorySelect = document.getElementById('productCategory');
+    if (productCategorySelect) {
+        productCategorySelect.innerHTML = '<option value="">请选择分类</option>';
+        if (categories && categories.length > 0) {
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                productCategorySelect.appendChild(option);
+            });
+        }
+    }
+    
+    // 更新编辑商品表单的分类下拉框
+    const editProductCategorySelect = document.getElementById('editProductCategory');
+    if (editProductCategorySelect) {
+        editProductCategorySelect.innerHTML = '<option value="">请选择分类</option>';
+        if (categories && categories.length > 0) {
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                editProductCategorySelect.appendChild(option);
+            });
+        }
+    }
+}
 
 // 加载商品数据
 async function loadProductsData() {
@@ -65,7 +147,10 @@ function displayProducts(products) {
 
 // 获取分类名称
 function getCategoryName(categoryId) {
-    // 这里应该从分类数据中获取名称，暂时返回ID
+    // 从分类数据中获取名称
+    if (categoriesMap.has(categoryId)) {
+        return categoriesMap.get(categoryId).name;
+    }
     return categoryId;
 }
 
@@ -144,8 +229,8 @@ async function saveProduct() {
     const name = document.getElementById('productName').value.trim();
     const category = document.getElementById('productCategory').value;
     const price = parseFloat(document.getElementById('productPrice').value);
-    const kucun = parseInt(document.getElementById('productKucun').value);
-    const content = document.getElementById('productContent').innerHTML;
+    const kucun = parseInt(document.getElementById('productStock').value);
+    const content = document.getElementById('productDescriptionContent').innerHTML;
     
     if (!name || !category || isNaN(price) || isNaN(kucun)) {
         showMessage('请填写完整的商品信息', 'warning');
@@ -224,13 +309,13 @@ function fillEditProductForm(product) {
     document.getElementById('editProductName').value = product.name || '';
     document.getElementById('editProductCategory').value = product.category || '';
     document.getElementById('editProductPrice').value = product.price || '';
-    document.getElementById('editProductKucun').value = product.kucun || '';
-    document.getElementById('editProductContent').innerHTML = product.content || '';
+    document.getElementById('editProductStock').value = product.kucun || '';
+    document.getElementById('editProductDescriptionContent').innerHTML = product.content || '';
     
     // 显示现有图片
     displayEditProductImages(product.tp || []);
     
-    currentEditor = document.getElementById('editProductContent');
+    currentEditor = document.getElementById('editProductDescriptionContent');
 }
 
 // 显示编辑表单的图片
@@ -269,8 +354,8 @@ async function updateProduct() {
     const name = document.getElementById('editProductName').value.trim();
     const category = document.getElementById('editProductCategory').value;
     const price = parseFloat(document.getElementById('editProductPrice').value);
-    const kucun = parseInt(document.getElementById('editProductKucun').value);
-    const content = document.getElementById('editProductContent').innerHTML;
+    const kucun = parseInt(document.getElementById('editProductStock').value);
+    const content = document.getElementById('editProductDescriptionContent').innerHTML;
     
     if (!name || !category || isNaN(price) || isNaN(kucun)) {
         showMessage('请填写完整的商品信息', 'warning');
