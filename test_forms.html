@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表单保存功能测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: #667eea;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #f0f0f0;
+        }
+
+        .modal .form-group {
+            padding: 1rem 1.5rem;
+            margin: 0;
+        }
+
+        .modal .form-group:last-child {
+            padding-bottom: 1.5rem;
+            text-align: right;
+        }
+
+        .modal .form-group:last-child .btn {
+            margin-left: 0.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 表单保存功能测试页面</h1>
+        <p class="success">这个页面用于测试各种模态框的保存功能是否正常工作</p>
+        
+        <div class="test-section">
+            <h3>测试按钮：</h3>
+            <button class="btn" onclick="showModal('testUserModal')">测试添加用户</button>
+            <button class="btn" onclick="showModal('testProductModal')">测试添加商品</button>
+            <button class="btn" onclick="showModal('testCategoryModal')">测试添加分类</button>
+            <button class="btn" onclick="showModal('testMemberModal')">测试添加会员</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>测试说明：</h3>
+            <ol>
+                <li>点击任意测试按钮打开对应的模态框</li>
+                <li>填写表单信息</li>
+                <li>点击"保存"按钮测试保存功能</li>
+                <li>检查控制台输出和成功提示</li>
+            </ol>
+        </div>
+        
+        <p><a href="/admin">访问管理后台</a></p>
+        <p><a href="/">返回首页</a></p>
+    </div>
+    
+    <!-- 测试用户模态框 -->
+    <div id="testUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>测试添加用户</h3>
+                <span class="close" onclick="closeModal('testUserModal')">&times;</span>
+            </div>
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" class="form-control" id="testUserUsername" placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label>邮箱</label>
+                <input type="email" class="form-control" id="testUserEmail" placeholder="请输入邮箱">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" class="form-control" id="testUserPassword" placeholder="请输入密码">
+            </div>
+            <div class="form-group">
+                <label>角色</label>
+                <select class="form-control" id="testUserRole">
+                    <option value="user">普通用户</option>
+                    <option value="admin">管理员</option>
+                    <option value="superadmin">超级管理员</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="testSaveUser()">保存</button>
+                <button class="btn btn-secondary" onclick="closeModal('testUserModal')">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 测试商品模态框 -->
+    <div id="testProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>测试添加商品</h3>
+                <span class="close" onclick="closeModal('testProductModal')">&times;</span>
+            </div>
+            <div class="form-group">
+                <label>商品名称</label>
+                <input type="text" class="form-control" id="testProductName" placeholder="请输入商品名称">
+            </div>
+            <div class="form-group">
+                <label>商品分类</label>
+                <select class="form-control" id="testProductCategory">
+                    <option value="">请选择分类</option>
+                    <option value="electronics">电子产品</option>
+                    <option value="clothing">服装</option>
+                    <option value="food">食品</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>商品价格</label>
+                <input type="number" class="form-control" id="testProductPrice" placeholder="请输入价格">
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="testSaveProduct()">保存</button>
+                <button class="btn btn-secondary" onclick="closeModal('testProductModal')">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 测试分类模态框 -->
+    <div id="testCategoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>测试添加分类</h3>
+                <span class="close" onclick="closeModal('testCategoryModal')">&times;</span>
+            </div>
+            <div class="form-group">
+                <label>分类名称</label>
+                <input type="text" class="form-control" id="testCategoryName" placeholder="请输入分类名称">
+            </div>
+            <div class="form-group">
+                <label>分类描述</label>
+                <textarea class="form-control" id="testCategoryDescription" rows="3" placeholder="请输入分类描述"></textarea>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="testSaveCategory()">保存</button>
+                <button class="btn btn-secondary" onclick="closeModal('testCategoryModal')">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 测试会员模态框 -->
+    <div id="testMemberModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>测试添加会员</h3>
+                <span class="close" onclick="closeModal('testMemberModal')">&times;</span>
+            </div>
+            <div class="form-group">
+                <label>会员昵称</label>
+                <input type="text" class="form-control" id="testMemberNickname" placeholder="请输入昵称">
+            </div>
+            <div class="form-group">
+                <label>手机号码</label>
+                <input type="tel" class="form-control" id="testMemberPhone" placeholder="请输入手机号">
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success" onclick="testSaveMember()">保存</button>
+                <button class="btn btn-secondary" onclick="closeModal('testMemberModal')">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 模态框功能
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+        
+        // 测试保存函数
+        function testSaveUser() {
+            const username = document.getElementById('testUserUsername').value.trim();
+            const email = document.getElementById('testUserEmail').value.trim();
+            const password = document.getElementById('testUserPassword').value.trim();
+            const role = document.getElementById('testUserRole').value;
+            
+            if (!username || !email || !password) {
+                alert('请填写完整信息');
+                return;
+            }
+            
+            console.log('测试保存用户:', { username, email, password, role });
+            alert('用户保存成功！');
+            closeModal('testUserModal');
+            
+            // 清空表单
+            document.getElementById('testUserUsername').value = '';
+            document.getElementById('testUserEmail').value = '';
+            document.getElementById('testUserPassword').value = '';
+            document.getElementById('testUserRole').value = 'user';
+        }
+        
+        function testSaveProduct() {
+            const name = document.getElementById('testProductName').value.trim();
+            const category = document.getElementById('testProductCategory').value;
+            const price = document.getElementById('testProductPrice').value.trim();
+            
+            if (!name || !category || !price) {
+                alert('请填写完整信息');
+                return;
+            }
+            
+            console.log('测试保存商品:', { name, category, price });
+            alert('商品保存成功！');
+            closeModal('testProductModal');
+            
+            // 清空表单
+            document.getElementById('testProductName').value = '';
+            document.getElementById('testProductCategory').value = '';
+            document.getElementById('testProductPrice').value = '';
+        }
+        
+        function testSaveCategory() {
+            const name = document.getElementById('testCategoryName').value.trim();
+            const description = document.getElementById('testCategoryDescription').value.trim();
+            
+            if (!name) {
+                alert('请输入分类名称');
+                return;
+            }
+            
+            console.log('测试保存分类:', { name, description });
+            alert('分类保存成功！');
+            closeModal('testCategoryModal');
+            
+            // 清空表单
+            document.getElementById('testCategoryName').value = '';
+            document.getElementById('testCategoryDescription').value = '';
+        }
+        
+        function testSaveMember() {
+            const nickname = document.getElementById('testMemberNickname').value.trim();
+            const phone = document.getElementById('testMemberPhone').value.trim();
+            
+            if (!nickname || !phone) {
+                alert('请填写完整信息');
+                return;
+            }
+            
+            console.log('测试保存会员:', { nickname, phone });
+            alert('会员保存成功！');
+            closeModal('testMemberModal');
+            
+            // 清空表单
+            document.getElementById('testMemberNickname').value = '';
+            document.getElementById('testMemberPhone').value = '';
+        }
+        
+        console.log('表单保存功能测试页面加载完成！');
+    </script>
+</body>
+</html>

@@ -3,7 +3,6 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -13,22 +12,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// JsonResult 返回结构
-type JsonResult struct {
-	Code     int         `json:"code"`
-	ErrorMsg string      `json:"errorMsg,omitempty"`
-	Data     interface{} `json:"data"`
-}
 
-// IndexHandler 计数器接口
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	data, err := getIndex()
-	if err != nil {
-		fmt.Fprint(w, "内部错误")
-		return
-	}
-	fmt.Fprint(w, data)
-}
+
+
 
 // CounterHandler 计数器接口
 func CounterHandler(w http.ResponseWriter, r *http.Request) {
@@ -40,6 +26,7 @@ func CounterHandler(w http.ResponseWriter, r *http.Request) {
 			res.Code = -1
 			res.ErrorMsg = err.Error()
 		} else {
+			res.Code = 0
 			res.Data = counter.Count
 		}
 	} else if r.Method == http.MethodPost {
@@ -48,6 +35,7 @@ func CounterHandler(w http.ResponseWriter, r *http.Request) {
 			res.Code = -1
 			res.ErrorMsg = err.Error()
 		} else {
+			res.Code = 0
 			res.Data = count
 		}
 	} else {
@@ -55,13 +43,7 @@ func CounterHandler(w http.ResponseWriter, r *http.Request) {
 		res.ErrorMsg = fmt.Sprintf("请求方法 %s 不支持", r.Method)
 	}
 
-	msg, err := json.Marshal(res)
-	if err != nil {
-		fmt.Fprint(w, "内部错误")
-		return
-	}
-	w.Header().Set("content-type", "application/json")
-	w.Write(msg)
+	WriteJSON(w, res)
 }
 
 // modifyCounter 更新计数，自增或者清零
@@ -149,11 +131,4 @@ func getAction(r *http.Request) (string, error) {
 	return action.(string), nil
 }
 
-// getIndex 获取主页
-func getIndex() (string, error) {
-	b, err := ioutil.ReadFile("./index.html")
-	if err != nil {
-		return "", err
-	}
-	return string(b), nil
-}
+
